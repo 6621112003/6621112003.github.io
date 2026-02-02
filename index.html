@@ -29,44 +29,28 @@
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
     /* Category Button */
-    .cat-btn { 
-        transition: all 0.2s; 
-        border: 1px solid #eee; 
-        background: white; 
-        color: #666; 
-        position: relative;
-        overflow: hidden;
-    }
-    .cat-btn:hover { background: #fff0f0; color: #FF6B6B; border-color: #FF6B6B; }
-    .cat-btn.active { 
-        background: linear-gradient(135deg, #FF6B6B, #FF8E8E); 
-        color: white; 
-        border-color: transparent; 
-        box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3); 
-        transform: scale(1.05); 
-        z-index: 10;
-    }
-    /* Fix click issue: Make children ignore pointer events so button catches click */
-    .cat-btn * { pointer-events: none; }
+    .cat-btn { transition: 0.2s; border: 1px solid #eee; background: white; color: #555; }
+    .cat-btn:hover { background: #fff5f5; color: #FF6B6B; }
+    .cat-btn.active { background: linear-gradient(135deg, #FF6B6B, #FF8E8E); color: white; border-color: transparent; box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3); transform: scale(1.05); }
     
     /* Star Rating */
     .star-rating i { cursor: pointer; transition: transform 0.2s; color: #ddd; }
-    .star-rating i.active { color: #FFD93D; transform: scale(1.1); text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+    .star-rating i.active { color: #FFD93D; transform: scale(1.1); text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     
     /* Loader */
     .loader-spin { animation: spin 1s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
  </head>
- <body class="h-full text-gray-700">
-  <div id="app" class="h-full overflow-auto">
+ <body class="h-full text-gray-700 flex flex-col">
+  <div id="app" class="h-full overflow-auto flex flex-col">
    
    <div id="loadingScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/95 backdrop-blur-md transition-opacity duration-500">
     <div class="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full loader-spin"></div>
     <p class="mt-4 font-bold text-orange-500 animate-pulse">กำลังโหลดร้านอร่อย...</p>
    </div>
 
-   <div id="mainContent" class="hidden opacity-0 transition-opacity duration-500">
+   <div id="mainContent" class="hidden opacity-0 transition-opacity duration-500 flex-1 flex flex-col">
     
     <nav class="sticky top-0 z-40 glass shadow-sm">
      <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
@@ -84,16 +68,16 @@
      </div>
     </nav>
 
-    <div id="homePage" class="page">
-     <div class="relative pt-10 pb-20 px-4 text-center z-10"> <h2 class="text-3xl md:text-5xl font-extrabold text-gray-800 mb-6 tracking-tight">หาร้านเด็ด <span class="text-orange-500 underline decoration-wavy decoration-orange-300">ใกล้ตัวคุณ</span></h2>
+    <div id="homePage" class="page flex-1">
+     <div class="relative pt-10 pb-16 px-4 text-center">
+        <h2 class="text-3xl md:text-5xl font-extrabold text-gray-800 mb-6 tracking-tight">หาร้านเด็ด <span class="text-orange-500 underline decoration-wavy decoration-orange-300">ใกล้ตัวคุณ</span></h2>
         <div class="max-w-xl mx-auto bg-white rounded-full p-2 flex items-center shadow-xl border border-orange-100 transition hover:scale-[1.01]">
             <span class="pl-4 text-orange-400"><i class="fa-solid fa-search"></i></span>
             <input type="text" id="searchInput" placeholder="วันนี้กินอะไรดี..." class="flex-1 px-4 py-2 bg-transparent outline-none text-gray-700" oninput="filterRestaurants()">
         </div>
      </div>
 
-     <div class="max-w-7xl mx-auto px-4 pb-24 -mt-10 relative z-20"> 
-      
+     <div class="max-w-7xl mx-auto px-4 pb-12 -mt-8 relative z-20">
       <div class="flex flex-col md:flex-row justify-between gap-4 mb-8">
         <div class="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 hide-scrollbar" id="categoryFilterContainer">
             </div>
@@ -110,14 +94,14 @@
      </div>
     </div>
 
-    <div id="detailPage" class="page hidden">
+    <div id="detailPage" class="page hidden flex-1">
      <div class="max-w-5xl mx-auto px-4 py-8">
        <button onclick="showPage('home')" class="mb-6 px-5 py-2 bg-white rounded-full shadow-sm text-gray-600 hover:text-orange-500 font-bold transition flex items-center gap-2 text-sm"><i class="fa-solid fa-arrow-left"></i> ย้อนกลับ</button>
        <div id="restaurantDetailContent" class="glass rounded-[2rem] shadow-xl overflow-hidden min-h-[60vh] border border-white/50 bg-white"></div>
      </div>
     </div>
 
-    <div id="loginPage" class="page hidden">
+    <div id="loginPage" class="page hidden flex-1">
      <div class="min-h-screen flex items-center justify-center px-4 -mt-20">
       <div class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-sm text-center relative overflow-hidden border border-gray-100">
        <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-500 to-red-500"></div>
@@ -133,7 +117,7 @@
      </div>
     </div>
 
-    <div id="adminPage" class="page hidden">
+    <div id="adminPage" class="page hidden flex-1">
      <div class="max-w-7xl mx-auto px-4 py-8">
       <div class="bg-white rounded-3xl shadow-lg p-6 mb-8 flex flex-col md:flex-row justify-between items-center gap-6 border border-gray-100">
        <div>
@@ -162,6 +146,10 @@
      </div>
     </div>
 
+    <footer class="text-center py-6 text-xs text-gray-400 border-t mt-auto">
+        <p>© 2024 จัดทำโดย <b>นายรัฐวุฒิ กลีบจำปี</b></p>
+    </footer>
+
     <div id="restaurantModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm transition-opacity">
      <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform scale-100 transition-transform">
       <div class="p-6 md:p-8">
@@ -176,10 +164,20 @@
         <div><label class="text-xs font-bold text-gray-500 uppercase">รายละเอียด</label><textarea id="formDescription" rows="3" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-orange-500 bg-gray-50"></textarea></div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="text-xs font-bold text-gray-500 uppercase">ที่อยู่</label><input type="text" id="formAddress" class="w-full px-4 py-2 border rounded-xl outline-none bg-gray-50"></div><div><label class="text-xs font-bold text-gray-500 uppercase">เบอร์โทร</label><input type="tel" id="formPhone" class="w-full px-4 py-2 border rounded-xl outline-none bg-gray-50"></div></div>
         <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200"><div><span class="text-xs font-bold text-gray-500">เปิด</span><input type="time" id="formOpenTime" class="w-full bg-white border rounded px-2 py-1"></div><div><span class="text-xs font-bold text-gray-500">ปิด</span><input type="time" id="formCloseTime" class="w-full bg-white border rounded px-2 py-1"></div></div>
+        
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="border-2 border-dashed border-orange-200 rounded-xl p-4 text-center cursor-pointer hover:bg-orange-50 transition" onclick="document.getElementById('coverImageInput').click()"><div id="coverPreview" class="hidden mb-2 h-24 bg-gray-200 rounded-lg overflow-hidden"><img id="coverPreviewImg" class="h-full w-full object-cover"></div><div class="text-orange-500 font-bold text-sm">📷 รูปปกหลัก</div><input type="file" id="coverImageInput" accept="image/*" onchange="handleCoverUpload(event)" class="hidden"></div>
-            <div class="border-2 border-dashed border-blue-200 rounded-xl p-4 text-center cursor-pointer hover:bg-blue-50 transition" onclick="document.getElementById('galleryImageInput').click()"><div id="galleryPreviewGrid" class="grid grid-cols-4 gap-1 mb-2"></div><div class="text-blue-500 font-bold text-sm">🖼️ แกลเลอรี</div><input type="file" id="galleryImageInput" accept="image/*" multiple onchange="handleGalleryUpload(event)" class="hidden"></div>
+            <div class="border-2 border-dashed border-orange-200 rounded-xl p-4 text-center cursor-pointer hover:bg-orange-50 transition" onclick="document.getElementById('coverImageInput').click()">
+                <div id="coverPreview" class="hidden mb-2 h-24 bg-gray-200 rounded-lg overflow-hidden"><img id="coverPreviewImg" class="h-full w-full object-cover"></div>
+                <div class="text-orange-500 font-bold text-sm">📷 รูปปกหลัก (Auto Resize)</div>
+                <input type="file" id="coverImageInput" accept="image/*" onchange="handleCoverUpload(event)" class="hidden">
+            </div>
+            <div class="border-2 border-dashed border-blue-200 rounded-xl p-4 text-center cursor-pointer hover:bg-blue-50 transition" onclick="document.getElementById('galleryImageInput').click()">
+                <div id="galleryPreviewGrid" class="grid grid-cols-4 gap-1 mb-2"></div>
+                <div class="text-blue-500 font-bold text-sm">🖼️ แกลเลอรี</div>
+                <input type="file" id="galleryImageInput" accept="image/*" multiple onchange="handleGalleryUpload(event)" class="hidden">
+            </div>
         </div>
+
         <div class="flex gap-3 pt-4 border-t"><button onclick="closeModal('restaurantModal')" class="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold">ยกเลิก</button><button onclick="saveRestaurant()" id="saveRestaurantBtn" class="flex-1 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-bold shadow-lg">บันทึก</button></div>
        </div>
       </div>
@@ -187,9 +185,12 @@
     </div>
 
     <div id="userModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"><h3 class="text-xl font-bold mb-4 text-gray-800">จัดการผู้ใช้งาน</h3><div class="space-y-4"><input type="hidden" id="formUserId"><div><label class="text-xs font-bold text-gray-500">Username</label><input type="text" id="formUsername" class="w-full px-4 py-2 border rounded-xl outline-none"></div><div><label class="text-xs font-bold text-gray-500">Password</label><input type="text" id="formPassword" class="w-full px-4 py-2 border rounded-xl outline-none"></div><div><label class="text-xs font-bold text-gray-500">Role</label><select id="formRole" class="w-full px-4 py-2 border rounded-xl outline-none bg-white"><option value="owner">👑 Owner</option><option value="moderator">🛠️ Moderator</option><option value="inspector">🔍 Inspector</option></select></div></div><div class="flex gap-3 mt-6"><button onclick="closeModal('userModal')" class="flex-1 py-2 bg-gray-100 rounded-lg font-bold">ยกเลิก</button><button onclick="saveUser()" class="flex-1 py-2 bg-blue-500 text-white rounded-lg font-bold">บันทึก</button></div></div></div>
+    
     <div id="editProfileModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6"><h3 class="text-xl font-bold mb-4 text-gray-800">👤 เปลี่ยนรหัสผ่าน</h3><div class="space-y-3"><div><label class="text-xs text-gray-500 block mb-1">ชื่อผู้ใช้</label><input type="text" id="editProfileName" class="w-full px-4 py-2 border rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed" readonly></div><div><label class="text-xs text-gray-500 block mb-1">รหัสผ่านใหม่</label><input type="text" id="editProfilePass" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-green-500" placeholder="ตั้งรหัสใหม่"></div></div><div class="flex gap-3 mt-6"><button onclick="closeModal('editProfileModal')" class="flex-1 py-2 bg-gray-100 rounded-lg font-bold">ยกเลิก</button><button onclick="saveUserUpdate()" class="flex-1 py-2 bg-green-500 text-white rounded-lg font-bold shadow hover:bg-green-600">ยืนยัน</button></div></div></div>
+    
     <div id="imageViewerModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center z-[90] cursor-zoom-out" onclick="closeImageViewer()"><img id="fullImage" class="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl transition-transform duration-300 transform scale-95 opacity-0"><button onclick="closeImageViewer()" class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white w-10 h-10 rounded-full flex items-center justify-center text-2xl font-bold transition">×</button></div>
-    <div id="cropModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[80] p-4"><div class="bg-white rounded-2xl w-full max-w-4xl p-6 shadow-2xl"><h3 class="font-bold mb-4 text-lg">ปรับขนาดรูปปก</h3><div class="mb-4 h-[50vh] bg-gray-100 rounded-xl overflow-hidden border border-gray-300"><img id="cropImage" style="max-width: 100%;"></div><div class="flex gap-3"><button onclick="closeModal('cropModal')" class="flex-1 py-2 bg-gray-200 rounded-lg font-bold">ยกเลิก</button><button onclick="confirmCrop()" class="flex-1 py-2 bg-orange-500 text-white rounded-lg font-bold">ยืนยัน</button></div></div></div>
+    
+    <div id="cropModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[80] p-4"><div class="bg-white rounded-2xl w-full max-w-4xl p-6 shadow-2xl"><h3 class="font-bold mb-4 text-lg">ปรับขนาดรูปปก</h3><div class="mb-4 h-[50vh] bg-gray-100 rounded-xl overflow-hidden border border-gray-300"><img id="cropImage" style="max-width: 100%;"></div><div class="flex gap-3"><button onclick="closeModal('cropModal')" class="flex-1 py-2 bg-gray-200 rounded-lg font-bold">ยกเลิก</button><button onclick="confirmCrop()" class="flex-1 py-2 bg-orange-500 text-white rounded-lg font-bold">ยืนยัน (Auto Resize)</button></div></div></div>
 
    </div>
   </div>
@@ -230,22 +231,18 @@
 
     // --- STARTUP ---
     window.onload = function() {
-        // Init Categories (Filters & Form)
         const catContainer = document.getElementById('categoryFilterContainer');
         const catSelect = document.getElementById('formCategory');
         
-        // "All" Button
+        // FIX: Use data-name to ensure consistency
         catContainer.innerHTML = `<button onclick="setCategory('')" class="cat-btn active px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap" data-name="">ทั้งหมด</button>`;
         catSelect.innerHTML = `<option value="">เลือกประเภท</option>`;
         
         CATEGORIES.forEach(c => {
-            // Filter Button (Use data-name for exact match logic)
             catContainer.innerHTML += `<button onclick="setCategory('${c.name}')" class="cat-btn px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap" data-name="${c.name}">${c.icon} ${c.name}</button>`;
-            // Form Option
             catSelect.innerHTML += `<option value="${c.name}">${c.icon} ${c.name}</option>`;
         });
 
-        // Init Zones
         const z = document.getElementById('zoneFilter'), fz = document.getElementById('formZone');
         DISTRICTS.sort().forEach(d => { 
             const opt = `<option value="${d}">${d}</option>`;
@@ -257,7 +254,6 @@
 
     // --- DATA SYNC ---
     function startRealtimeSync() {
-        // Restaurants
         db.ref('restaurants').on('value', (s) => { 
             const val = s.val();
             dbData.restaurants = val ? Object.keys(val).map(k => ({...val[k], __backendId: k})) : [];
@@ -266,19 +262,17 @@
             hideLoader();
         });
 
-        // Reviews (Trigger re-render for ratings)
         db.ref('reviews').on('value', (s) => { 
             const val = s.val();
             dbData.reviews = val ? Object.keys(val).map(k => ({...val[k], __backendId: k})) : [];
-            renderGrid(dbData.restaurants); // Update stars on cards
+            renderGrid(dbData.restaurants); // Update stars
             if(currentUser) renderAdminReviews();
         });
         
-        // Users
         db.ref('users').on('value', (s) => { 
             const val = s.val();
             dbData.users = val ? Object.keys(val).map(k => ({...val[k], __backendId: k})) : [];
-            if(dbData.users.length === 0) { // Create default if empty
+            if(dbData.users.length === 0) {
                 create('users', { username: 'owner', password: '1234', role: 'owner' });
                 create('users', { username: 'moderator', password: '1234', role: 'moderator' });
                 create('users', { username: 'inspector', password: '1234', role: 'inspector' });
@@ -299,23 +293,18 @@
         }, 500);
     }
 
-    // --- CRUD WRAPPER ---
+    // --- CRUD ---
     function create(col, item) { return db.ref(col).push(item); }
     function update(col, id, item) { return db.ref(col + '/' + id).update(item); }
     function remove(col, id) { return db.ref(col + '/' + id).remove(); }
 
     // --- FRONTEND ---
-    function showPage(p) { 
-        document.querySelectorAll('.page').forEach(x => x.classList.add('hidden')); 
-        const t = document.getElementById(p + 'Page'); 
-        t.classList.remove('hidden'); 
-        window.scrollTo(0,0); 
-    }
+    function showPage(p) { document.querySelectorAll('.page').forEach(x => x.classList.add('hidden')); document.getElementById(p + 'Page').classList.remove('hidden'); window.scrollTo(0,0); }
     
     function setCategory(catName) { 
         categoryFilter = catName; 
         document.querySelectorAll('.cat-btn').forEach(btn => {
-            // FIX: Use data-name for exact matching
+            // FIX: Match by data-name
             if(btn.dataset.name === catName) btn.classList.add('active');
             else btn.classList.remove('active');
         });
@@ -328,12 +317,11 @@
         
         let list = dbData.restaurants.filter(r => {
             const matchSearch = !s || r.name.toLowerCase().includes(s);
-            const matchCat = !categoryFilter || r.category === categoryFilter; // Exact match
+            const matchCat = !categoryFilter || r.category === categoryFilter; // Exact Match
             const matchZone = !z || r.zone === z;
             return matchSearch && matchCat && matchZone;
         });
 
-        // Sort by Rating (High to Low)
         list.sort((a,b) => getRating(b.__backendId).num - getRating(a.__backendId).num);
         renderGrid(list);
     }
@@ -534,6 +522,16 @@
     // --- EDIT PROFILE ---
     function showEditUserModal() { document.getElementById('editProfileName').value = currentUser.username; document.getElementById('editProfileModal').classList.remove('hidden'); }
     async function saveUserUpdate() { const p=document.getElementById('editProfilePass').value; if(p) await update('users', currentUser.__backendId, {password:p}); closeModal('editProfileModal'); Swal.fire('Success','เปลี่ยนรหัสผ่านแล้ว','success'); }
+    
+    // 🟢 CROP (Auto)
+    function confirmCrop() {
+        if(!cropper) return;
+        // Auto Resize to 800x450 (16:9)
+        const canvas = cropper.getCroppedCanvas({ width: 800, height: 450, fillColor: '#fff', imageSmoothingEnabled: true, imageSmoothingQuality: 'high' });
+        coverImg = canvas.toDataURL('image/jpeg', 0.8);
+        updatePreviews();
+        closeModal('cropModal');
+    }
   </script>
  </body>
 </html>
