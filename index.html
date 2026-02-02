@@ -3,7 +3,7 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FoodHunter - ร้านอร่อยใกล้คุณ</title>
+  <title>FoodHunter - ของแซ่บใกล้ฉัน</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -47,7 +47,7 @@
    
    <div id="loadingScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/95 backdrop-blur-md transition-opacity duration-500">
     <div class="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full loader-spin"></div>
-    <p class="mt-4 font-bold text-orange-500 animate-pulse">กำลังโหลดร้านอร่อย...</p>
+    <p class="mt-4 font-bold text-orange-500 animate-pulse">กำลังโหลดร้านแซ่บๆ...</p>
    </div>
 
    <div id="mainContent" class="hidden opacity-0 transition-opacity duration-500 flex-1 flex flex-col">
@@ -58,7 +58,7 @@
        <div class="bg-gradient-to-tr from-orange-400 to-red-500 text-white w-10 h-10 rounded-xl flex items-center justify-center text-xl shadow-md group-hover:rotate-12 transition">🍽️</div>
        <div>
            <h1 class="text-lg font-bold bg-gradient-to-r from-orange-600 to-red-500 bg-clip-text text-transparent leading-none">FoodHunter</h1>
-           <p class="text-[10px] text-gray-400 font-medium">ร้านอร่อย อัปเดตไว</p>
+           <p class="text-[10px] text-gray-400 font-medium">ร้านแซ่บๆ อัปเดตแบบฟ่าวๆ...</p>
        </div>
       </div>
       <div class="flex gap-2">
@@ -70,10 +70,10 @@
 
     <div id="homePage" class="page flex-1">
      <div class="relative pt-10 pb-16 px-4 text-center">
-        <h2 class="text-3xl md:text-5xl font-extrabold text-gray-800 mb-6 tracking-tight">หาร้านเด็ด <span class="text-orange-500 underline decoration-wavy decoration-orange-300">ใกล้ตัวคุณ</span></h2>
+        <h2 class="text-3xl md:text-5xl font-extrabold text-gray-800 mb-6 tracking-tight">หาร้านแซ่บๆ จ๊วดๆ <span class="text-orange-500 underline decoration-wavy decoration-orange-300">ใกล้ตัวคุณ</span></h2>
         <div class="max-w-xl mx-auto bg-white rounded-full p-2 flex items-center shadow-xl border border-orange-100 transition hover:scale-[1.01]">
             <span class="pl-4 text-orange-400"><i class="fa-solid fa-search"></i></span>
-            <input type="text" id="searchInput" placeholder="วันนี้กินอะไรดี..." class="flex-1 px-4 py-2 bg-transparent outline-none text-gray-700" oninput="filterRestaurants()">
+            <input type="text" id="searchInput" placeholder="มื้อนี้กินอีหยังงงงงดี..." class="flex-1 px-4 py-2 bg-transparent outline-none text-gray-700" oninput="filterRestaurants()">
         </div>
      </div>
 
@@ -88,8 +88,8 @@
       
       <div id="emptyState" class="hidden text-center py-24 opacity-60">
         <i class="fa-solid fa-utensils text-6xl text-gray-300 mb-4 block"></i>
-        <p class="text-lg text-gray-500">ไม่พบร้านอาหารในหมวดหมู่นี้</p>
-        <button onclick="setCategory('')" class="mt-4 text-orange-500 underline">ดูร้านทั้งหมด</button>
+        <p class="text-lg text-gray-500">บ่พ้อร้านแซ่บในหมู่นี้</p>
+        <button onclick="setCategory('')" class="mt-4 text-orange-500 underline">เบิ่งร้านทั้งเหมิด</button>
       </div>
      </div>
     </div>
@@ -106,12 +106,12 @@
       <div class="bg-white rounded-3xl shadow-2xl p-10 w-full max-w-sm text-center relative overflow-hidden border border-gray-100">
        <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-500 to-red-500"></div>
        <div class="mb-6 inline-block p-4 rounded-full bg-orange-50 text-4xl shadow-inner">🔐</div>
-       <h2 class="text-2xl font-bold mb-2 text-gray-800">เข้าสู่ระบบแอดมิน</h2>
+       <h2 class="text-2xl font-bold mb-2 text-gray-800">เข้าสู่ระบบผู้เบิ่ง</h2>
        <p class="text-gray-400 text-xs mb-8 bg-gray-50 p-2 rounded">Default: owner / 1234</p>
        <div class="space-y-4">
            <input type="text" id="loginUsername" class="w-full px-5 py-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50 focus:bg-white transition" placeholder="Username">
            <input type="password" id="loginPassword" class="w-full px-5 py-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-orange-400 bg-gray-50 focus:bg-white transition" placeholder="Password">
-           <button onclick="handleLogin()" class="w-full py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-bold shadow-lg hover:shadow-orange-500/30 transform hover:-translate-y-1 transition">เข้าสู่ระบบ</button>
+           <button onclick="handleLogin()" class="w-full py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-bold shadow-lg hover:shadow-orange-500/30 transform hover:-translate-y-1 transition">เข้าสู่ระบบดูเบิ่ง</button>
        </div>
       </div>
      </div>
@@ -121,8 +121,8 @@
      <div class="max-w-7xl mx-auto px-4 py-8">
       <div class="bg-white rounded-3xl shadow-lg p-6 mb-8 flex flex-col md:flex-row justify-between items-center gap-6 border border-gray-100">
        <div>
-           <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2"><i class="fa-solid fa-cogs text-orange-500"></i> ระบบหลังบ้าน</h2>
-           <p class="text-sm text-gray-500 mt-1">สวัสดีคุณ <span id="adminNameDisplay" class="text-orange-600 font-bold"></span> <span id="adminRoleBadge" class="ml-2 px-2 py-0.5 rounded text-[10px] uppercase font-bold text-white bg-gray-400">Role</span></p>
+           <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2"><i class="fa-solid fa-cogs text-orange-500"></i> ระบบผู้เบิ่งหลังเฮียน</h2>
+           <p class="text-sm text-gray-500 mt-1">สวัสดีบัก <span id="adminNameDisplay" class="text-orange-600 font-bold"></span> <span id="adminRoleBadge" class="ml-2 px-2 py-0.5 rounded text-[10px] uppercase font-bold text-white bg-gray-400">Role</span></p>
        </div>
        <div class="flex gap-2">
          <button onclick="showEditUserModal()" class="px-4 py-2 bg-blue-50 text-blue-600 rounded-xl font-bold hover:bg-blue-100 transition text-xs flex items-center gap-2"><i class="fa-solid fa-key"></i> เปลี่ยนรหัส</button>
@@ -140,14 +140,14 @@
       <div id="adminTabRestaurants" class="admin-tab-content hidden"><div id="adminRestaurantList" class="space-y-3"></div></div>
       <div id="adminTabReviews" class="admin-tab-content hidden"><div id="adminReviewList" class="space-y-3"></div></div>
       <div id="adminTabUsers" class="admin-tab-content hidden">
-          <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-gray-700">รายชื่อผู้ดูแล</h3><button onclick="showUserForm()" class="bg-blue-500 text-white px-4 py-1.5 rounded-lg text-sm font-bold shadow hover:bg-blue-600 transition"><i class="fa-solid fa-user-plus"></i> เพิ่ม</button></div>
+          <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-gray-700">รายชื่อผู้เบิ่งแงง</h3><button onclick="showUserForm()" class="bg-blue-500 text-white px-4 py-1.5 rounded-lg text-sm font-bold shadow hover:bg-blue-600 transition"><i class="fa-solid fa-user-plus"></i> เพิ่ม</button></div>
           <div id="adminUserList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </div>
      </div>
     </div>
 
     <footer class="text-center py-6 text-xs text-gray-400 border-t mt-auto">
-        <p>© 2024 จัดทำโดย <b>นายรัฐวุฒิ กลีบจำปี</b></p>
+        <p>© 2026 เฮ็ดโดย <b>นายรัฐวุฒิ กลีบจำปี</b></p>
     </footer>
 
     <div id="restaurantModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm transition-opacity">
@@ -168,7 +168,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="border-2 border-dashed border-orange-200 rounded-xl p-4 text-center cursor-pointer hover:bg-orange-50 transition" onclick="document.getElementById('coverImageInput').click()">
                 <div id="coverPreview" class="hidden mb-2 h-24 bg-gray-200 rounded-lg overflow-hidden"><img id="coverPreviewImg" class="h-full w-full object-cover"></div>
-                <div class="text-orange-500 font-bold text-sm">📷 รูปปกหลัก (Auto Resize)</div>
+                <div class="text-orange-500 font-bold text-sm">📷 รูปปกหลัก (เฮ็ดขนาดไฮ่)</div>
                 <input type="file" id="coverImageInput" accept="image/*" onchange="handleCoverUpload(event)" class="hidden">
             </div>
             <div class="border-2 border-dashed border-blue-200 rounded-xl p-4 text-center cursor-pointer hover:bg-blue-50 transition" onclick="document.getElementById('galleryImageInput').click()">
@@ -368,8 +368,8 @@
         <div class="bg-gradient-to-br from-orange-50 to-white p-6 rounded-2xl border border-orange-100 mb-8 shadow-sm">
             <h4 class="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wide">เขียนรีวิวร้านนี้</h4>
             <div class="flex gap-2 mb-4 star-rating" id="reviewStarInput">${[1,2,3,4,5].map(i => `<i class="fa-solid fa-star text-3xl inactive transition hover:scale-110" onclick="setReviewRating(${i})" data-val="${i}"></i>`).join('')}</div>
-            <input type="text" id="reviewAuthor" class="w-full mb-3 px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-orange-200 outline-none transition" placeholder="ชื่อของคุณ (ไม่ระบุก็ได้)">
-            <textarea id="reviewText" rows="2" class="w-full mb-3 px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-orange-200 outline-none transition" placeholder="รสชาติเป็นอย่างไรบ้าง?"></textarea>
+            <input type="text" id="reviewAuthor" class="w-full mb-3 px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-orange-200 outline-none transition" placeholder="เจ้าซื่ออีหยัง (ไบ่ต้องระบุก็ได้)">
+            <textarea id="reviewText" rows="2" class="w-full mb-3 px-4 py-2.5 border border-gray-200 rounded-xl bg-white focus:ring-2 focus:ring-orange-200 outline-none transition" placeholder="รสชาติเป็นจังได๋ แซ่บบ่?"></textarea>
             <button onclick="submitReview('${r.__backendId}')" class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-2.5 rounded-xl font-bold hover:shadow-lg hover:-translate-y-0.5 transition w-full md:w-auto">ส่งรีวิว</button>
         </div>
         <div class="space-y-4">${reviews.length === 0 ? '<div class="text-center py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-200 text-gray-400">ยังไม่มีรีวิว เป็นคนแรกเลย!</div>' : reviews.map(rv => `<div class="bg-white p-5 rounded-2xl flex gap-4 border border-gray-100 shadow-sm hover:shadow-md transition"><div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold shrink-0 shadow-inner">${rv.author.charAt(0).toUpperCase()}</div><div class="flex-1"><div class="flex justify-between items-start mb-1"><div><span class="font-bold text-gray-800 block">${rv.author}</span><div class="text-yellow-400 text-xs mt-0.5">${'<i class="fa-solid fa-star"></i>'.repeat(rv.rating)}</div></div><span class="text-[10px] text-gray-400 bg-gray-50 px-2 py-1 rounded-full">${new Date(rv.date).toLocaleDateString('th-TH')}</span></div><p class="text-gray-600 text-sm mt-2 leading-relaxed">${rv.text}</p></div></div>`).join('')}</div></div>`;
