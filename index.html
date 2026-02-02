@@ -143,45 +143,47 @@
     </div>
 
     <div id="restaurantModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm transition-opacity">
-     <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+     <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform scale-100 transition-transform">
       <div class="p-6 md:p-8">
-       <div class="flex justify-between items-center mb-6"><h3 id="restaurantFormTitle" class="text-xl font-bold text-gray-800">จัดการร้านอาหาร</h3><button onclick="closeModal('restaurantModal')" class="text-gray-400 hover:text-red-500 text-2xl">×</button></div>
-       <div class="space-y-4">
-        <div><label class="text-xs font-bold text-gray-500 uppercase">ชื่อร้าน</label><input type="text" id="formName" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-orange-500 transition"></div>
-        <div class="grid grid-cols-2 gap-4">
-          <div><label class="text-xs font-bold text-gray-500 uppercase">หมวดหมู่</label><select id="formCategory" class="w-full px-4 py-2 border rounded-xl outline-none bg-white"></select></div>
-          <div><label class="text-xs font-bold text-gray-500 uppercase">เขต</label><select id="formZone" class="w-full px-4 py-2 border rounded-xl outline-none bg-white"></select></div>
+       <div class="flex justify-between items-center mb-6 border-b pb-4"><h3 id="restaurantFormTitle" class="text-xl font-bold text-gray-800">จัดการร้านอาหาร</h3><button onclick="closeModal('restaurantModal')" class="text-3xl text-gray-300 hover:text-red-500 transition">×</button></div>
+       <div class="space-y-5">
+        <div><label class="text-sm font-bold text-gray-600 mb-1 block">ชื่อร้าน *</label><input type="text" id="formName" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-orange-500 transition bg-gray-50 focus:bg-white"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><label class="text-sm font-bold text-gray-600 mb-1 block">ประเภท *</label><select id="formCategory" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-orange-500 bg-gray-50"></select></div>
+          <div><label class="text-sm font-bold text-gray-600 mb-1 block">เขต *</label><select id="formZone" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-orange-500 bg-gray-50"><option value="">เลือกเขต</option></select></div>
         </div>
-        <div class="bg-blue-50 p-3 rounded-xl border border-blue-100">
-            <label class="text-xs font-bold text-blue-600 uppercase"><i class="fa-solid fa-map-pin"></i> ลิงก์ Google Maps</label>
-            <input type="url" id="formMapUrl" class="w-full px-3 py-1 bg-white border border-blue-200 rounded-lg outline-none text-sm mt-1" placeholder="https://maps.app.goo.gl/...">
+        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+            <label class="text-sm font-bold text-blue-800 mb-1 block"><i class="fa-solid fa-map-location-dot"></i> ลิงก์แผนที่ (Google Maps)</label>
+            <input type="url" id="formMapUrl" class="w-full px-3 py-2 border border-blue-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-300 text-sm" placeholder="วางลิงก์ที่นี่ (https://maps.app.goo.gl/...)">
         </div>
-        <div><label class="text-xs font-bold text-gray-500 uppercase">รายละเอียด</label><textarea id="formDescription" rows="3" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-orange-500"></textarea></div>
-        <div class="grid grid-cols-2 gap-4">
-            <div><label class="text-xs font-bold text-gray-500 uppercase">ที่อยู่</label><input type="text" id="formAddress" class="w-full px-4 py-2 border rounded-xl outline-none"></div>
-            <div><label class="text-xs font-bold text-gray-500 uppercase">เบอร์โทร</label><input type="tel" id="formPhone" class="w-full px-4 py-2 border rounded-xl outline-none"></div>
+        <div><label class="text-sm font-bold text-gray-600 mb-1 block">รายละเอียด</label><textarea id="formDescription" rows="3" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-orange-500 bg-gray-50"></textarea></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div><label class="text-sm font-bold text-gray-600 mb-1 block">ที่อยู่</label><input type="text" id="formAddress" class="w-full px-4 py-2 border rounded-xl outline-none bg-gray-50"></div>
+            <div><label class="text-sm font-bold text-gray-600 mb-1 block">เบอร์โทร</label><input type="tel" id="formPhone" class="w-full px-4 py-2 border rounded-xl outline-none bg-gray-50"></div>
         </div>
-        <div class="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-xl border">
-            <div><span class="text-xs font-bold text-gray-500">เปิด</span><input type="time" id="formOpenTime" class="w-full bg-white border rounded px-2 py-1"></div>
-            <div><span class="text-xs font-bold text-gray-500">ปิด</span><input type="time" id="formCloseTime" class="w-full bg-white border rounded px-2 py-1"></div>
+        <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
+            <div><label class="text-xs text-gray-500 mb-1 block">เปิด</label><input type="time" id="formOpenTime" class="w-full border rounded px-2 py-1 bg-white"></div>
+            <div><label class="text-xs text-gray-500 mb-1 block">ปิด</label><input type="time" id="formCloseTime" class="w-full border rounded px-2 py-1 bg-white"></div>
         </div>
         
-        <div class="grid grid-cols-2 gap-4">
-            <div class="border-2 border-dashed border-orange-200 rounded-xl p-4 text-center cursor-pointer hover:bg-orange-50 transition" onclick="document.getElementById('coverImageInput').click()">
-                <div id="coverPreview" class="hidden mb-2 h-24 bg-gray-200 rounded-lg overflow-hidden"><img id="coverPreviewImg" class="h-full w-full object-cover"></div>
-                <div class="text-orange-500 font-bold text-sm"><i class="fa-solid fa-camera"></i> รูปปก</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="border-2 border-dashed border-orange-200 rounded-xl p-4 bg-orange-50/50 text-center hover:bg-orange-50 transition cursor-pointer" onclick="document.getElementById('coverImageInput').click()">
+                <label class="block font-bold mb-2 text-orange-800 cursor-pointer">📷 รูปปกหลัก</label>
+                <div id="coverPreview" class="hidden mb-2 relative h-32 bg-gray-200 rounded-lg overflow-hidden"><img id="coverPreviewImg" class="h-full w-full object-cover"></div>
+                <div class="text-sm text-orange-500 font-medium">คลิกเพื่ออัปโหลด</div>
                 <input type="file" id="coverImageInput" accept="image/*" onchange="handleCoverUpload(event)" class="hidden">
             </div>
-            <div class="border-2 border-dashed border-blue-200 rounded-xl p-4 text-center cursor-pointer hover:bg-blue-50 transition" onclick="document.getElementById('galleryImageInput').click()">
+            <div class="border-2 border-dashed border-blue-200 rounded-xl p-4 bg-blue-50/50 text-center hover:bg-blue-50 transition cursor-pointer" onclick="document.getElementById('galleryImageInput').click()">
+                <label class="block font-bold mb-2 text-blue-800 cursor-pointer">🖼️ แกลเลอรี</label>
                 <div id="galleryPreviewGrid" class="grid grid-cols-4 gap-1 mb-2"></div>
-                <div class="text-blue-500 font-bold text-sm"><i class="fa-regular fa-images"></i> แกลเลอรี</div>
+                <div class="text-sm text-blue-500 font-medium">คลิกเพื่อเพิ่มรูป</div>
                 <input type="file" id="galleryImageInput" accept="image/*" multiple onchange="handleGalleryUpload(event)" class="hidden">
             </div>
         </div>
 
-        <div class="flex gap-3 pt-4 border-t">
-            <button onclick="closeModal('restaurantModal')" class="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold">ยกเลิก</button>
-            <button onclick="saveRestaurant()" id="saveRestaurantBtn" class="flex-1 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition">บันทึก</button>
+        <div class="flex gap-3 pt-6 border-t mt-4">
+            <button onclick="closeModal('restaurantModal')" class="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition">ยกเลิก</button>
+            <button onclick="saveRestaurant()" id="saveRestaurantBtn" class="flex-1 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition">บันทึกข้อมูล</button>
         </div>
        </div>
       </div>
@@ -192,35 +194,35 @@
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
          <h3 class="text-xl font-bold mb-4 text-gray-800">จัดการผู้ใช้งาน</h3>
          <div class="space-y-4">
-             <input type="hidden" id="formUserId"> <div><label class="text-xs font-bold text-gray-500">Username</label><input type="text" id="formUsername" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-blue-500"></div>
-             <div><label class="text-xs font-bold text-gray-500">Password</label><input type="text" id="formPassword" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-blue-500"></div>
+             <input type="hidden" id="formUserId"> <div><label class="text-xs text-gray-500 block mb-1">Username</label><input type="text" id="formUsername" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-blue-500 bg-gray-50"></div>
+             <div><label class="text-xs text-gray-500 block mb-1">Password</label><input type="text" id="formPassword" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-blue-500 bg-gray-50"></div>
              <div>
-                 <label class="text-xs font-bold text-gray-500">Role</label>
-                 <select id="formRole" class="w-full px-4 py-2 border rounded-xl outline-none bg-white">
-                     <option value="owner">👑 Owner (เจ้าของ)</option>
-                     <option value="moderator">🛠️ Moderator (ผู้คุม)</option>
-                     <option value="inspector">🔍 Inspector (ผู้ตรวจ)</option>
+                 <label class="text-xs text-gray-500 block mb-1">Role (บทบาท)</label>
+                 <select id="formRole" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-blue-500 bg-white">
+                     <option value="owner">👑 Owner (เจ้าของสูงสุด)</option>
+                     <option value="moderator">🛠️ Moderator (คุมร้าน/รีวิว)</option>
+                     <option value="inspector">🔍 Inspector (ดูรีวิวอย่างเดียว)</option>
                  </select>
              </div>
          </div>
-         <div class="flex gap-3 mt-6"><button onclick="closeModal('userModal')" class="flex-1 py-2 bg-gray-100 rounded-lg font-bold">ยกเลิก</button><button onclick="saveUser()" class="flex-1 py-2 bg-blue-500 text-white rounded-lg font-bold">บันทึก</button></div>
+         <div class="flex gap-3 mt-6"><button onclick="closeModal('userModal')" class="flex-1 py-2 bg-gray-100 rounded-lg font-bold text-gray-600">ยกเลิก</button><button onclick="saveUser()" class="flex-1 py-2 bg-blue-500 text-white rounded-lg font-bold shadow hover:bg-blue-600">บันทึก</button></div>
         </div>
     </div>
 
     <div id="editProfileModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
-         <h3 class="text-xl font-bold mb-4">👤 เปลี่ยนรหัสผ่าน</h3>
+         <h3 class="text-xl font-bold mb-4 text-gray-800">👤 เปลี่ยนรหัสผ่าน</h3>
          <div class="space-y-3">
-           <input type="text" id="editProfileName" class="w-full px-4 py-2 border rounded-xl bg-gray-100 text-gray-500" readonly>
-           <input type="text" id="editProfilePass" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-green-500" placeholder="รหัสผ่านใหม่">
+           <div><label class="text-xs text-gray-500 block mb-1">ชื่อผู้ใช้</label><input type="text" id="editProfileName" class="w-full px-4 py-2 border rounded-xl bg-gray-100 text-gray-500 cursor-not-allowed" readonly></div>
+           <div><label class="text-xs text-gray-500 block mb-1">รหัสผ่านใหม่</label><input type="text" id="editProfilePass" class="w-full px-4 py-2 border border-gray-300 rounded-xl outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100" placeholder="ตั้งรหัสใหม่"></div>
          </div>
-         <div class="flex gap-3 mt-6"><button onclick="closeModal('editProfileModal')" class="flex-1 py-2 bg-gray-100 rounded-lg font-bold">ยกเลิก</button><button onclick="saveUserUpdate()" class="flex-1 py-2 bg-green-500 text-white rounded-lg font-bold">ยืนยัน</button></div>
+         <div class="flex gap-3 mt-6"><button onclick="closeModal('editProfileModal')" class="flex-1 py-2 bg-gray-100 rounded-lg font-bold text-gray-600">ยกเลิก</button><button onclick="saveUserUpdate()" class="flex-1 py-2 bg-green-500 text-white rounded-lg font-bold shadow hover:bg-green-600">ยืนยัน</button></div>
         </div>
     </div>
 
-    <div id="imageViewerModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center z-[90] cursor-zoom-out" onclick="closeImageViewer()"><img id="fullImage" class="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"><button class="absolute top-4 right-4 text-white text-3xl opacity-80 hover:opacity-100">×</button></div>
+    <div id="imageViewerModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center z-[90] cursor-zoom-out backdrop-blur-md" onclick="closeImageViewer()"><div class="relative w-full h-full flex items-center justify-center p-4"><img id="fullImage" src="" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl transition-transform duration-300 transform scale-95 opacity-0"><button onclick="closeImageViewer()" class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white w-10 h-10 rounded-full flex items-center justify-center text-2xl font-bold transition">×</button></div></div>
     
-    <div id="cropModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[80] p-4"><div class="bg-white rounded-2xl w-full max-w-4xl p-6"><h3 class="font-bold mb-4 text-lg">ปรับขนาดรูปปก</h3><div class="mb-4 h-[50vh] bg-gray-100 rounded-xl overflow-hidden"><img id="cropImage" style="max-width: 100%;"></div><div class="flex gap-3"><button onclick="closeModal('cropModal')" class="flex-1 py-2 bg-gray-200 rounded-lg font-bold">ยกเลิก</button><button onclick="confirmCrop()" class="flex-1 py-2 bg-orange-500 text-white rounded-lg font-bold">ยืนยัน</button></div></div></div>
+    <div id="cropModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[80] p-4 backdrop-blur-sm"><div class="bg-white rounded-2xl w-full max-w-4xl p-6 shadow-2xl"><h3 class="text-lg font-bold mb-4 text-gray-800">ปรับขนาดรูปปก</h3><div class="mb-4 h-[50vh] bg-gray-100 rounded-xl overflow-hidden border border-gray-300"><img id="cropImage" style="max-width: 100%;"></div><div class="flex gap-4"><button onclick="closeModal('cropModal')" class="flex-1 py-3 bg-gray-200 rounded-xl font-bold hover:bg-gray-300 transition">ยกเลิก</button><button onclick="confirmCrop()" class="flex-1 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition">ยืนยันการใช้รูปนี้</button></div></div></div>
 
    </div>
   </div>
@@ -349,7 +351,8 @@
         const s = document.getElementById('searchInput').value.toLowerCase();
         const z = document.getElementById('zoneFilter').value;
         let list = dbData.restaurants.filter(r => (!s || r.name.toLowerCase().includes(s)) && (!categoryFilter || r.category === categoryFilter) && (!z || r.zone === z));
-        list.sort((a,b) => getRating(b.__backendId).avg - getRating(a.__backendId).avg); // Sort by rating
+        // Sort by Rating
+        list.sort((a,b) => getRating(b.__backendId).avg - getRating(a.__backendId).avg);
         renderGrid(list);
     }
     
@@ -413,7 +416,7 @@
         if(currentReviewRating===0) return Swal.fire('ลืมให้ดาว!', 'กรุณากดให้ดาวก่อนส่งรีวิว', 'warning');
         const t=document.getElementById('reviewText').value, a=document.getElementById('reviewAuthor').value||'Guest'; 
         await create('reviews', {restaurantId:rId, rating:currentReviewRating, text:t, author:a, date:new Date().toISOString()}); 
-        Swal.fire({title:'ขอบคุณ!', text:'รีวิวของคุณถูกส่งแล้ว', icon:'success', timer:1500, showConfirmButton:false});
+        Swal.fire('ขอบคุณ!', 'รีวิวของคุณถูกส่งแล้ว', 'success');
         viewDetail(rId); 
     }
 
@@ -423,7 +426,7 @@
         const u=document.getElementById('loginUsername').value, p=document.getElementById('loginPassword').value; 
         const user=dbData.users.find(x => x.username===u && x.password===p); 
         if(user){ currentUser=user; document.getElementById('adminNameDisplay').innerText=u; document.getElementById('adminRoleBadge').innerText=user.role; renderAdminTabs(); showPage('admin'); } 
-        else Swal.fire('ผิดพลาด', 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'error');
+        else Swal.fire('เข้าสู่ระบบไม่สำเร็จ', 'ชื่อผู้ใช้หรือรหัสผ่านผิด', 'error');
     }
     
     function renderAdminTabs() { 
@@ -433,7 +436,8 @@
         const tabs = ['Rest','Review','User'];
         tabs.forEach(t => {
             const btn = document.getElementById('tab'+t+'Btn');
-            btn.classList.remove('text-orange-500','border-orange-500','border-b-2'); btn.classList.add('text-gray-500');
+            btn.classList.remove('text-orange-500','border-orange-500','border-b-2');
+            btn.classList.add('text-gray-500');
             btn.onclick = () => {
                 tabs.forEach(x => document.getElementById('tab'+x+'Btn').classList.remove('text-orange-500','border-orange-500','border-b-2'));
                 btn.classList.add('text-orange-500','border-orange-500','border-b-2');
@@ -480,8 +484,11 @@
         document.getElementById('adminUserList').innerHTML = dbData.users.map(u => `
             <div class="p-4 bg-white rounded-2xl shadow-sm border border-gray-100">
                 <div class="flex justify-between items-start mb-2">
-                    <div><div class="font-bold text-gray-800">${u.username}</div><span class="text-xs uppercase bg-gray-100 px-2 py-0.5 rounded text-gray-500 font-bold">${u.role}</span></div>
-                    ${(currentUser.role==='owner' && u.username!=='owner') ? `<div class="flex gap-1"><button onclick='showUserForm(${JSON.stringify(u).replace(/'/g, "\\'")})' class="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center"><i class="fa-solid fa-pen"></i></button><button onclick="deleteItem('users','${u.__backendId}')" class="w-8 h-8 bg-red-50 text-red-600 rounded-full flex items-center justify-center"><i class="fa-solid fa-trash"></i></button></div>` : ''}
+                    <div>
+                        <div class="font-bold text-gray-800">${u.username}</div>
+                        <span class="text-xs uppercase bg-gray-100 px-2 py-0.5 rounded text-gray-500 font-bold">${u.role}</span>
+                    </div>
+                    ${(currentUser.role==='owner' && u.username!=='admin') ? `<div class="flex gap-1"><button onclick='showUserForm(${JSON.stringify(u).replace(/'/g, "\\'")})' class="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center"><i class="fa-solid fa-pen"></i></button><button onclick="deleteItem('users','${u.__backendId}')" class="w-8 h-8 bg-red-50 text-red-600 rounded-full flex items-center justify-center"><i class="fa-solid fa-trash"></i></button></div>` : ''}
                 </div>
             </div>`).join(''); 
     }
@@ -502,16 +509,15 @@
         if(u) document.getElementById('formUserId').value = u.__backendId;
         document.getElementById('userModal').classList.remove('hidden'); 
     }
-    
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
     function handleLogout() { Swal.fire({title:'ยืนยันออก?',icon:'warning',showCancelButton:true}).then(r=>{if(r.isConfirmed){currentUser=null;showPage('home');}}); }
 
     async function saveRestaurant() {
-        const name=document.getElementById('formName').value; if(!name)return Swal.fire('แจ้งเตือน','กรุณาใส่ชื่อร้าน','warning');
+        const name=document.getElementById('formName').value; if(!name)return Swal.fire('Error','กรุณาใส่ชื่อร้าน','error');
         const btn = document.getElementById('saveRestaurantBtn'); btn.innerText='⏳...'; btn.disabled=true;
         const data={name,category:document.getElementById('formCategory').value,zone:document.getElementById('formZone').value,description:document.getElementById('formDescription').value,address:document.getElementById('formAddress').value,phone:document.getElementById('formPhone').value,openTime:document.getElementById('formOpenTime').value,closeTime:document.getElementById('formCloseTime').value,mapUrl:document.getElementById('formMapUrl').value,coverImage:coverImg,gallery:galleryImgs};
         editingItem ? await update('restaurants', editingItem.__backendId, data) : await create('restaurants', data);
-        btn.innerText='บันทึกข้อมูล'; btn.disabled=false; closeModal('restaurantModal'); Swal.fire({title:'สำเร็จ',icon:'success',timer:1000,showConfirmButton:false});
+        btn.innerText='บันทึกข้อมูล'; btn.disabled=false; closeModal('restaurantModal'); Swal.fire('สำเร็จ','บันทึกข้อมูลเรียบร้อย','success');
     }
     
     async function saveUser() {
