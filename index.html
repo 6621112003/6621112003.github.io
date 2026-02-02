@@ -37,8 +37,8 @@
    <div id="loadingScreen" class="fixed inset-0 gradient-bg flex items-center justify-center z-[100] transition-opacity duration-500">
     <div class="text-center text-white">
      <div class="text-6xl mb-4 animate-bounce">📡</div>
-     <div class="text-2xl font-bold">กำลังเชื่อมต่อฐานข้อมูล...</div>
-     <p id="loadingStatus" class="text-sm mt-2 opacity-80">กรุณารอสักครู่</p>
+     <div class="text-2xl font-bold">กำลังโหลด...</div>
+     <p id="loadingStatus" class="text-sm mt-2 opacity-80">เชื่อมต่อฐานข้อมูล</p>
     </div>
    </div>
 
@@ -155,7 +155,16 @@
         <div><label class="text-sm font-bold text-gray-700">รายละเอียด</label><textarea id="formDescription" rows="3" class="w-full px-4 py-2 border rounded-xl outline-none"></textarea></div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="text-sm font-bold text-gray-700">ที่อยู่</label><input type="text" id="formAddress" class="w-full px-4 py-2 border rounded-xl outline-none"></div><div><label class="text-sm font-bold text-gray-700">เบอร์โทร</label><input type="tel" id="formPhone" class="w-full px-4 py-2 border rounded-xl outline-none"></div></div>
         <div class="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-xl border"><div><label class="text-xs text-gray-500">เปิด</label><input type="time" id="formOpenTime" class="w-full border rounded px-2 py-1"></div><div><label class="text-xs text-gray-500">ปิด</label><input type="time" id="formCloseTime" class="w-full border rounded px-2 py-1"></div></div>
+        
         <div class="border-2 border-dashed border-orange-200 rounded-xl p-4 bg-orange-50 text-center"><label class="block font-bold mb-2 text-orange-800">📷 รูปปก (1 รูป)</label><div id="coverPreview" class="hidden mb-3 relative h-48 bg-gray-200 rounded-lg overflow-hidden group"><img id="coverPreviewImg" class="h-full w-full object-cover"><button onclick="removeCoverImage()" class="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full">×</button></div><button onclick="document.getElementById('coverImageInput').click()" class="bg-white border border-orange-300 text-orange-600 px-4 py-2 rounded-lg text-sm font-bold">📁 เลือกรูป</button><input type="file" id="coverImageInput" accept="image/*" onchange="handleCoverUpload(event)" class="hidden"></div>
+        
+        <div class="border-2 border-dashed border-blue-200 rounded-xl p-4 bg-blue-50 mt-4">
+          <label class="block font-bold mb-2 text-blue-800">🖼️ แกลเลอรีรูปภาพ</label>
+          <div id="galleryPreviewGrid" class="grid grid-cols-3 md:grid-cols-5 gap-2 mb-3"></div>
+          <button onclick="document.getElementById('galleryImageInput').click()" class="bg-white border border-blue-300 text-blue-600 px-4 py-2 rounded-lg text-sm font-bold w-full hover:bg-blue-100 transition">📁 เพิ่มรูปภาพ (เลือกพร้อมกันได้)</button>
+          <input type="file" id="galleryImageInput" accept="image/*" multiple onchange="handleGalleryUpload(event)" class="hidden">
+        </div>
+
         <div class="flex gap-4 pt-4 border-t"><button onclick="closeRestaurantForm()" class="flex-1 py-3 bg-gray-200 rounded-xl font-bold">ยกเลิก</button><button onclick="saveRestaurant()" id="saveRestaurantBtn" class="flex-1 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-bold">บันทึก</button></div>
        </div>
       </div>
@@ -188,7 +197,7 @@
   </div>
 
   <script>
-    // --- 🔴 CONFIG FIREBASE (ใส่ให้แล้ว) ---
+    // --- 🔑 FIREBASE CONFIG ---
     const firebaseConfig = {
       apiKey: "AIzaSyBHX9l4CYgX0BCFliagOnBCK1oFbu7sp9s",
       authDomain: "rattawut-food.firebaseapp.com",
@@ -196,6 +205,7 @@
       storageBucket: "rattawut-food.firebasestorage.app",
       messagingSenderId: "928937247925",
       appId: "1:928937247925:web:5d58ca32296f841a126afc",
+      measurementId: "G-R2SSTS917K",
       databaseURL: "https://rattawut-food-default-rtdb.asia-southeast1.firebasedatabase.app"
     };
 
@@ -230,18 +240,15 @@
         db.ref('restaurants').on('value', (s) => { dbData.restaurants = s.val() ? Object.values(s.val()) : []; renderGrid(); if(currentUser) renderAdminRestaurants(); showApp(); });
         db.ref('reviews').on('value', (s) => { dbData.reviews = s.val() ? Object.values(s.val()) : []; if(currentUser) renderAdminReviews(); });
         
-        // --- 🔴 ตรวจสอบและสร้าง USER เริ่มต้น ---
+        // --- 🔴 USER CHECK (Fix for empty DB) ---
         db.ref('users').on('value', (s) => { 
             dbData.users = s.val() ? Object.values(s.val()) : [];
-            
-            // ถ้า Database User ว่างเปล่า -> สร้าง 3 คนนี้ทันที
+            // ถ้าว่าง ให้สร้าง 3 คน
             if(dbData.users.length === 0) {
-                console.log("Creating default users...");
                 create('users', { username: 'owner', password: '1234', role: 'owner' });
                 create('users', { username: 'moderator', password: '1234', role: 'moderator' });
                 create('users', { username: 'inspector', password: '1234', role: 'inspector' });
             }
-
             if(currentUser) renderAdminUsers(); 
         });
     }
