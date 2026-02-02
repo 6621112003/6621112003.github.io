@@ -37,8 +37,8 @@
    <div id="loadingScreen" class="fixed inset-0 gradient-bg flex items-center justify-center z-[100] transition-opacity duration-500">
     <div class="text-center text-white">
      <div class="text-6xl mb-4 animate-bounce">📡</div>
-     <div class="text-2xl font-bold">กำลังโหลด...</div>
-     <p id="loadingStatus" class="text-sm mt-2 opacity-80">เชื่อมต่อฐานข้อมูล</p>
+     <div class="text-2xl font-bold">กำลังเชื่อมต่อฐานข้อมูล...</div>
+     <p id="loadingStatus" class="text-sm mt-2 opacity-80">กรุณารอสักครู่</p>
     </div>
    </div>
 
@@ -97,6 +97,16 @@
       <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md text-center border-t-4 border-orange-500">
        <div class="text-5xl mb-4 text-orange-500"><i class="fa-solid fa-cloud"></i></div>
        <h2 class="text-2xl font-bold mb-4 text-gray-800">เข้าสู่ระบบ (Online)</h2>
+       
+       <div class="text-gray-600 text-sm mb-6 bg-gray-100 p-4 rounded-xl text-left border border-gray-200">
+           <p class="font-bold text-orange-500 mb-2">รายชื่อผู้ใช้เริ่มต้น (รหัส: 1234)</p>
+           <ul class="space-y-1">
+               <li>👑 <b>owner</b> : เจ้าของ (คุมทุกอย่าง)</li>
+               <li>🛠️ <b>moderator</b> : ผู้ควบคุม (ร้านค้า+รีวิว)</li>
+               <li>🔍 <b>inspector</b> : ผู้ตรวจสอบ (รีวิวเท่านั้น)</li>
+           </ul>
+       </div>
+
        <input type="text" id="loginUsername" class="w-full mb-3 px-4 py-3 border border-gray-200 rounded-xl outline-none focus:border-orange-500" placeholder="ชื่อผู้ใช้">
        <input type="password" id="loginPassword" class="w-full mb-6 px-4 py-3 border border-gray-200 rounded-xl outline-none focus:border-orange-500" placeholder="รหัสผ่าน">
        <button onclick="handleLogin()" class="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-bold hover:shadow-lg transform transition active:scale-95">เข้าสู่ระบบ</button>
@@ -112,7 +122,8 @@
            <p class="text-sm text-gray-500">Login: <span id="adminNameDisplay" class="text-orange-500 font-bold"></span> <span id="adminRoleBadge" class="ml-2 px-2 py-0.5 rounded text-xs font-bold text-white bg-gray-500">Role</span></p>
        </div>
        <div class="flex gap-2 flex-wrap justify-center">
-         <button onclick="showRestaurantForm()" class="px-5 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow hover:shadow-lg font-medium transition transform hover:-translate-y-1"><i class="fa-solid fa-plus"></i> เพิ่มร้าน</button>
+         <button onclick="showEditUserModal()" class="px-4 py-2 bg-blue-100 text-blue-600 rounded-full font-bold hover:bg-blue-200 transition text-sm"><i class="fa-solid fa-user-pen"></i> เปลี่ยนรหัส</button>
+         <button onclick="showRestaurantForm()" id="btnAddRest" class="px-5 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow hover:shadow-lg font-medium transition transform hover:-translate-y-1"><i class="fa-solid fa-plus"></i> เพิ่มร้าน</button>
          <button onclick="handleLogout()" class="px-4 py-2 bg-red-100 text-red-600 rounded-full hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-right-from-bracket"></i> ออก</button>
        </div>
       </div>
@@ -123,7 +134,10 @@
       </div>
       <div id="adminTabRestaurants" class="admin-tab-content hidden"><div id="adminRestaurantList" class="space-y-4"></div></div>
       <div id="adminTabReviews" class="admin-tab-content hidden"><div id="adminReviewList" class="space-y-4"></div></div>
-      <div id="adminTabUsers" class="admin-tab-content hidden"><div id="adminUserList" class="space-y-4"></div></div>
+      <div id="adminTabUsers" class="admin-tab-content hidden">
+          <div class="flex justify-between items-center mb-4"><h3 class="font-bold text-lg">รายชื่อผู้ใช้</h3><button onclick="showUserForm()" class="bg-blue-500 text-white px-4 py-1 rounded-lg text-sm">+ เพิ่มผู้ใช้</button></div>
+          <div id="adminUserList" class="space-y-4"></div>
+      </div>
      </div>
     </div>
 
@@ -156,6 +170,17 @@
         </div>
     </div>
 
+    <div id="editProfileModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+         <h3 class="text-xl font-bold mb-4 text-gray-800">👤 เปลี่ยนรหัสผ่าน</h3>
+         <div class="space-y-4">
+           <div><label class="text-xs text-gray-500">ชื่อผู้ใช้ (แก้ไขไม่ได้)</label><input type="text" id="editProfileName" class="w-full px-4 py-2 border rounded-xl bg-gray-100" readonly></div>
+           <div><label class="text-xs text-gray-500">รหัสผ่านใหม่</label><input type="text" id="editProfilePass" class="w-full px-4 py-2 border rounded-xl" placeholder="ตั้งรหัสใหม่"></div>
+         </div>
+         <div class="flex gap-3 mt-6"><button onclick="closeEditUserModal()" class="flex-1 py-2 bg-gray-200 rounded-lg font-bold">ยกเลิก</button><button onclick="saveUserUpdate()" class="flex-1 py-2 bg-green-500 text-white rounded-lg font-bold">บันทึก</button></div>
+        </div>
+    </div>
+
     <div id="imageViewerModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center z-[90] cursor-pointer" onclick="closeImageViewer()"><div class="relative w-full h-full flex items-center justify-center p-4"><img id="fullImage" src="" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl transition-transform duration-300 transform scale-95 opacity-0"><button onclick="closeImageViewer()" class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white w-10 h-10 rounded-full flex items-center justify-center text-2xl font-bold">×</button></div></div>
     <div id="cropModal" class="fixed inset-0 bg-black bg-opacity-90 hidden items-center justify-center z-[80] p-4"><div class="bg-white rounded-2xl w-full max-w-4xl p-6"><h3 class="text-lg font-bold mb-4">ปรับขนาดรูปปก</h3><div class="mb-4 h-[60vh] bg-gray-100 rounded-xl overflow-hidden"><img id="cropImage" style="max-width: 100%;"></div><div class="flex gap-4"><button onclick="closeCropModal()" class="flex-1 py-3 bg-gray-200 rounded-xl font-bold">ยกเลิก</button><button onclick="confirmCrop()" class="flex-1 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-bold">ยืนยัน</button></div></div></div>
 
@@ -163,7 +188,7 @@
   </div>
 
   <script>
-    // --- 🔑 FIREBASE CONFIG (แก้ไขให้แล้ว!) ---
+    // --- 🔴 CONFIG FIREBASE (ใส่ให้แล้ว) ---
     const firebaseConfig = {
       apiKey: "AIzaSyBHX9l4CYgX0BCFliagOnBCK1oFbu7sp9s",
       authDomain: "rattawut-food.firebaseapp.com",
@@ -171,24 +196,18 @@
       storageBucket: "rattawut-food.firebasestorage.app",
       messagingSenderId: "928937247925",
       appId: "1:928937247925:web:5d58ca32296f841a126afc",
-      measurementId: "G-R2SSTS917K",
-      // 👇 ใช้ Link มาตรฐาน (Global) เพื่อแก้ปัญหาหาเซิร์ฟเวอร์ไม่เจอ
-      databaseURL: "https://rattawut-food-default-rtdb.firebaseio.com" 
+      databaseURL: "https://rattawut-food-default-rtdb.asia-southeast1.firebasedatabase.app"
     };
 
-    // Error Catcher (เผื่อมีอะไรพังอีก จะได้รู้)
+    // Error Handling
     window.onerror = function(msg, url, line) {
-        document.getElementById('loadingStatus').textContent = "เกิดข้อผิดพลาด: " + msg;
-        setTimeout(() => showApp(), 2000); // ถ้าพังก็ให้เข้าแอพไปก่อน
+        document.getElementById('loadingStatus').textContent = "Error: " + msg;
+        setTimeout(() => showApp(), 3000);
         return false;
     };
 
     // Initialize
-    if (!firebase.apps.length) {
-        try {
-            firebase.initializeApp(firebaseConfig);
-        } catch(e) { console.error("Firebase Error", e); }
-    }
+    if (!firebase.apps.length) { try { firebase.initializeApp(firebaseConfig); } catch(e) { console.error(e); } }
     const db = firebase.database();
 
     // --- 1. CONFIG & DATA ---
@@ -196,48 +215,50 @@
     let dbData = { restaurants:[], reviews:[], users:[] };
     let isConnected = false;
 
-    // --- 2. STARTUP LOGIC (FAILSAFE ADDED) ---
+    // --- 2. LOGIC ---
     function startRealtimeSync() {
         document.getElementById('loadingStatus').textContent = "กำลังเชื่อมต่อ...";
-        
-        // Timeout Failsafe: ถ้า 3 วิ ไม่มา ให้เข้าแอพเลย (ป้องกันหน้าขาว)
-        setTimeout(() => {
-            if (!isConnected) {
-                console.warn("Connection timeout, forcing UI load");
-                showApp();
-            }
-        }, 3000);
+        setTimeout(() => { if (!isConnected) showApp(); }, 3000); // Failsafe
 
         db.ref('.info/connected').on('value', function(snap) {
             if (snap.val() === true) {
                 isConnected = true;
-                document.getElementById('loadingStatus').textContent = "เชื่อมต่อสำเร็จ! กำลังดึงข้อมูล...";
+                document.getElementById('loadingStatus').textContent = "เชื่อมต่อสำเร็จ!";
             }
         });
 
         db.ref('restaurants').on('value', (s) => { dbData.restaurants = s.val() ? Object.values(s.val()) : []; renderGrid(); if(currentUser) renderAdminRestaurants(); showApp(); });
         db.ref('reviews').on('value', (s) => { dbData.reviews = s.val() ? Object.values(s.val()) : []; if(currentUser) renderAdminReviews(); });
+        
+        // --- 🔴 ตรวจสอบและสร้าง USER เริ่มต้น ---
         db.ref('users').on('value', (s) => { 
             dbData.users = s.val() ? Object.values(s.val()) : [];
-            if(dbData.users.length === 0) create('users', { username: 'admin', password: '1234', role: 'owner' });
+            
+            // ถ้า Database User ว่างเปล่า -> สร้าง 3 คนนี้ทันที
+            if(dbData.users.length === 0) {
+                console.log("Creating default users...");
+                create('users', { username: 'owner', password: '1234', role: 'owner' });
+                create('users', { username: 'moderator', password: '1234', role: 'moderator' });
+                create('users', { username: 'inspector', password: '1234', role: 'inspector' });
+            }
+
             if(currentUser) renderAdminUsers(); 
         });
     }
 
     function showApp() {
         const loader = document.getElementById('loadingScreen');
-        const main = document.getElementById('mainContent');
         if (loader.style.display === 'none') return;
-        
         loader.style.opacity = '0';
         setTimeout(() => {
             loader.style.display = 'none';
-            main.classList.remove('hidden');
-            setTimeout(() => { main.classList.remove('opacity-0'); main.classList.add('opacity-100'); }, 50);
+            document.getElementById('mainContent').classList.remove('hidden');
+            setTimeout(() => { document.getElementById('mainContent').classList.remove('opacity-0'); document.getElementById('mainContent').classList.add('opacity-100'); }, 50);
             showPage('home');
         }, 500);
     }
 
+    // CRUD Helper
     function create(col, item) { const newRef = db.ref(col).push(); item.__backendId = newRef.key; return newRef.set(item); }
     function update(col, item) { return db.ref(col + '/' + item.__backendId).set(item); }
     function remove(col, id) { return db.ref(col + '/' + id).remove(); }
@@ -245,8 +266,7 @@
     // --- 3. VARIABLES ---
     let currentUser = null, editingItem = null, editingUser = null;
     let categoryFilter = '', coverImg = '', galleryImgs = [], cropper = null;
-    let currentReviewRating = 0;
-    let userLocation = null;
+    let currentReviewRating = 0, userLocation = null;
 
     // --- 4. INIT ---
     function init() {
@@ -255,11 +275,11 @@
         startRealtimeSync();
     }
 
-    // --- 5. NAV ---
+    // --- 5. UI ---
     function showPage(p) { document.querySelectorAll('.page').forEach(x => { x.classList.remove('page-enter-active'); x.classList.add('hidden', 'page-enter'); }); const target = document.getElementById(p + 'Page'); target.classList.remove('hidden'); void target.offsetWidth; target.classList.add('page-enter-active'); target.classList.remove('page-enter', 'opacity-0'); window.scrollTo(0,0); }
     function setCategory(c) { categoryFilter = c; document.querySelectorAll('.category-btn').forEach(b => b.classList.toggle('active', b.dataset.category === c)); filterRestaurants(); }
 
-    // --- 6. GEOLOCATION ---
+    // --- 6. GEO ---
     function getLocation() {
         const status = document.getElementById('locationStatus');
         if (!navigator.geolocation) { status.textContent = "เบราว์เซอร์ไม่รองรับ GPS"; return; }
@@ -272,7 +292,7 @@
     }
     function calculateDistance(lat1, lon1, lat2, lon2) { if(!lat1 || !lon1 || !lat2 || !lon2) return null; const R = 6371; const dLat = (lat2-lat1) * Math.PI/180; const dLon = (lon2-lon1) * Math.PI/180; const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)*Math.sin(dLon/2); return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))); }
 
-    // --- 7. HOME & GRID ---
+    // --- 7. HOME ---
     function filterRestaurants() {
         const s = document.getElementById('searchInput').value.toLowerCase();
         const z = document.getElementById('zoneFilter').value;
@@ -292,7 +312,7 @@
     }
     function getRestaurantRating(rId) { const revs = dbData.reviews.filter(r => r.restaurantId === rId); if(revs.length === 0) return { avg: 0, count: 0 }; return { avg: (revs.reduce((a, b) => a + b.rating, 0) / revs.length).toFixed(1), count: revs.length }; }
 
-    // --- 8. DETAIL PAGE ---
+    // --- 8. DETAIL ---
     function viewDetail(id) {
         const r = dbData.restaurants.find(i => i.__backendId === id);
         if(!r) return;
@@ -308,15 +328,32 @@
     async function submitReview(rId) { if(currentReviewRating===0)return alert('ให้ดาวด้วยครับ'); const t=document.getElementById('reviewText').value.trim(), a=document.getElementById('reviewAuthor').value.trim()||'ผู้เยี่ยมชม'; await create('reviews', {restaurantId:rId, rating:currentReviewRating, text:t, author:a, date:new Date().toISOString()}); alert('ขอบคุณครับ!'); viewDetail(rId); }
 
     // --- 9. ADMIN ---
-    function handleLogin() { const u=document.getElementById('loginUsername').value, p=document.getElementById('loginPassword').value; const user=dbData.users.find(x => x.username===u && x.password===p); if(user){ currentUser=user; document.getElementById('adminNameDisplay').textContent=u; document.getElementById('adminRoleBadge').textContent=user.role; renderAdminTabs(); showPage('admin'); } else alert('❌ รหัสผิด (หรือระบบยังโหลดข้อมูลไม่เสร็จ)'); }
-    function renderAdminTabs() { const r=currentUser.role; document.getElementById('tabRestBtn').style.display=(r==='owner'||r==='moderator')?'block':'none'; document.getElementById('tabUserBtn').style.display=(r==='owner')?'block':'none'; (r==='owner'||r==='moderator')?switchAdminTab('restaurants'):switchAdminTab('reviews'); }
+    function handleLogin() { const u=document.getElementById('loginUsername').value, p=document.getElementById('loginPassword').value; const user=dbData.users.find(x => x.username===u && x.password===p); if(user){ currentUser=user; document.getElementById('adminNameDisplay').textContent=u; document.getElementById('adminRoleBadge').textContent=user.role; renderAdminTabs(); showPage('admin'); } else alert('❌ รหัสผิด'); }
+    function renderAdminTabs() { 
+        const r=currentUser.role; 
+        document.getElementById('tabRestBtn').style.display=(r==='owner'||r==='moderator')?'block':'none'; 
+        document.getElementById('tabUserBtn').style.display=(r==='owner')?'block':'none'; 
+        document.getElementById('btnAddRest').style.display=(r==='owner'||r==='moderator')?'block':'none';
+        
+        if(r==='owner'||r==='moderator') switchAdminTab('restaurants'); else switchAdminTab('reviews');
+    }
     function switchAdminTab(t) { document.querySelectorAll('.admin-tab-content').forEach(e=>e.classList.add('hidden')); document.getElementById('adminTab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.remove('hidden'); if(t==='restaurants')renderAdminRestaurants(); if(t==='reviews')renderAdminReviews(); if(t==='users')renderAdminUsers(); }
     
     function renderAdminRestaurants() { document.getElementById('adminRestaurantList').innerHTML=dbData.restaurants.map(r=>`<div class="flex justify-between items-center p-4 bg-white rounded-xl shadow-sm border gap-4"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded bg-gray-200 overflow-hidden shrink-0">${r.coverImage?`<img src="${r.coverImage}" class="w-full h-full object-cover">`:''}</div><div class="font-bold">${r.name}</div></div><div class="flex gap-2"><button onclick='showRestaurantForm(${JSON.stringify(r).replace(/'/g, "\\'")})' class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-sm font-bold">แก้ไข</button><button onclick="deleteItem('restaurants','${r.__backendId}')" class="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-sm font-bold">ลบ</button></div></div>`).join(''); }
     function renderAdminReviews() { document.getElementById('adminReviewList').innerHTML=dbData.reviews.map(rv=>`<div class="p-4 bg-white rounded-xl shadow-sm border"><div class="flex justify-between mb-2"><div class="font-bold text-gray-800">${dbData.restaurants.find(r=>r.__backendId===rv.restaurantId)?.name||'Unknown'}</div><div class="text-yellow-500 text-sm"><i class="fa-solid fa-star"></i> ${rv.rating}</div></div><p class="text-gray-600 text-sm mb-2">"${rv.text}" - <b>${rv.author}</b></p><div class="flex justify-end"><button onclick="deleteItem('reviews','${rv.__backendId}')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-xs font-bold hover:bg-red-200">ลบรีวิว</button></div></div>`).join(''); }
-    function renderAdminUsers() { document.getElementById('adminUserList').innerHTML=dbData.users.map(u=>`<div class="flex justify-between items-center p-4 bg-white rounded-xl shadow-sm border"><div><div class="font-bold">${u.username}</div><div class="text-xs text-gray-500 uppercase">${u.role}</div></div>${u.username!=='admin'?`<div class="flex gap-2"><button onclick="deleteItem('users','${u.__backendId}')" class="px-3 py-1 bg-red-50 text-red-600 rounded text-xs font-bold">ลบ</button></div>`:''}</div>`).join(''); }
+    function renderAdminUsers() { document.getElementById('adminUserList').innerHTML=dbData.users.map(u=>`<div class="flex justify-between items-center p-4 bg-white rounded-xl shadow-sm border"><div><div class="font-bold">${u.username}</div><div class="text-xs text-gray-500 uppercase">${u.role}</div></div>${u.username!=='admin' && u.username!=='owner' && u.username!=='moderator' && u.username!=='inspector'?`<div class="flex gap-2"><button onclick="deleteItem('users','${u.__backendId}')" class="px-3 py-1 bg-red-50 text-red-600 rounded text-xs font-bold">ลบ</button></div>`:''}</div>`).join(''); }
 
-    // --- 10. FORM & UTILS ---
+    // --- 10. EDIT PROFILE & UTILS ---
+    function showEditUserModal() { document.getElementById('editProfileName').value = currentUser.username; document.getElementById('editProfilePass').value = ''; document.getElementById('editProfileModal').classList.remove('hidden'); document.getElementById('editProfileModal').classList.add('flex'); }
+    function closeEditUserModal() { document.getElementById('editProfileModal').classList.add('hidden'); document.getElementById('editProfileModal').classList.remove('flex'); }
+    async function saveUserUpdate() {
+        const newPass = document.getElementById('editProfilePass').value;
+        if(!newPass) return alert('กรุณากรอกรหัสผ่านใหม่');
+        await update('users', { ...currentUser, password: newPass });
+        alert('เปลี่ยนรหัสสำเร็จ! กรุณาเข้าสู่ระบบใหม่');
+        closeEditUserModal(); handleLogout();
+    }
+
     function showRestaurantForm(r=null) { editingItem=r; document.getElementById('restaurantFormTitle').textContent=r?'✏️ แก้ไข':'➕ เพิ่มร้าน'; ['Name','Category','Zone','Description','Address','Phone','OpenTime','CloseTime','Lat','Lng'].forEach(k => document.getElementById('form'+k).value = r?(r[k.toLowerCase().replace('name','name').replace('time','Time')]||''):''); coverImg=r?.coverImage||''; galleryImgs=r?.gallery?[...r.gallery]:[]; updatePreviews(); document.getElementById('restaurantModal').classList.remove('hidden'); document.getElementById('restaurantModal').classList.add('flex'); }
     function showUserForm() { document.getElementById('userModal').classList.remove('hidden'); document.getElementById('userModal').classList.add('flex'); }
     async function saveRestaurant() { const name=document.getElementById('formName').value; if(!name)return alert('ใส่ชื่อร้าน'); const data={name,category:document.getElementById('formCategory').value,zone:document.getElementById('formZone').value,description:document.getElementById('formDescription').value,address:document.getElementById('formAddress').value,phone:document.getElementById('formPhone').value,openTime:document.getElementById('formOpenTime').value,closeTime:document.getElementById('formCloseTime').value,lat:parseFloat(document.getElementById('formLat').value),lng:parseFloat(document.getElementById('formLng').value),coverImage:coverImg,gallery:galleryImgs}; editingItem?await update('restaurants',{...editingItem,...data}):await create('restaurants',data); closeRestaurantForm(); }
