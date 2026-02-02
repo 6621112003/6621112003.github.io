@@ -16,34 +16,54 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <style>
-    :root { --primary: #FF6B6B; --secondary: #FFD93D; }
-    body { font-family: 'Prompt', sans-serif; background: linear-gradient(135deg, #fff5f5 0%, #fffbf0 100%); overflow-x: hidden; }
+    :root { --primary: #FF6B6B; --secondary: #FFD93D; --bg-glass: rgba(255, 255, 255, 0.95); }
+    body { font-family: 'Prompt', sans-serif; background: linear-gradient(135deg, #FFF0F0 0%, #FFF8E1 100%); overflow-x: hidden; }
     
     /* UI Components */
-    .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.8); }
+    .glass { background: var(--bg-glass); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255,255,255,0.5); }
     .card-zoom { transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
-    .card-zoom:hover { transform: translateY(-6px); box-shadow: 0 15px 35px rgba(255, 107, 107, 0.15); }
-    
-    /* Category Button */
-    .cat-btn { transition: all 0.2s; border: 1px solid #eee; background: white; color: #666; }
-    .cat-btn:hover { background: #fff0f0; color: #FF6B6B; border-color: #FF6B6B; }
-    .cat-btn.active { background: linear-gradient(135deg, #FF6B6B, #FF8E8E); color: white; border-color: transparent; box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3); transform: scale(1.05); }
+    .card-zoom:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(255, 107, 107, 0.15); }
     
     /* Scrollbar */
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
-    /* Stars */
-    .star-rating i { cursor: pointer; transition: transform 0.2s; color: #e5e7eb; }
+    /* Category Button */
+    .cat-btn { 
+        transition: all 0.2s; 
+        border: 1px solid #eee; 
+        background: white; 
+        color: #666; 
+        position: relative;
+        overflow: hidden;
+    }
+    .cat-btn:hover { background: #fff0f0; color: #FF6B6B; border-color: #FF6B6B; }
+    .cat-btn.active { 
+        background: linear-gradient(135deg, #FF6B6B, #FF8E8E); 
+        color: white; 
+        border-color: transparent; 
+        box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3); 
+        transform: scale(1.05); 
+        z-index: 10;
+    }
+    /* Fix click issue: Make children ignore pointer events so button catches click */
+    .cat-btn * { pointer-events: none; }
+    
+    /* Star Rating */
+    .star-rating i { cursor: pointer; transition: transform 0.2s; color: #ddd; }
     .star-rating i.active { color: #FFD93D; transform: scale(1.1); text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+    
+    /* Loader */
+    .loader-spin { animation: spin 1s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
  </head>
  <body class="h-full text-gray-700">
   <div id="app" class="h-full overflow-auto">
    
    <div id="loadingScreen" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white/95 backdrop-blur-md transition-opacity duration-500">
-    <div class="animate-bounce text-6xl mb-4">🍲</div>
-    <p class="font-bold text-orange-500 animate-pulse">กำลังปรุงข้อมูลอร่อยๆ...</p>
+    <div class="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full loader-spin"></div>
+    <p class="mt-4 font-bold text-orange-500 animate-pulse">กำลังโหลดร้านอร่อย...</p>
    </div>
 
    <div id="mainContent" class="hidden opacity-0 transition-opacity duration-500">
@@ -65,15 +85,15 @@
     </nav>
 
     <div id="homePage" class="page">
-     <div class="relative pt-10 pb-16 px-4 text-center">
-        <h2 class="text-3xl md:text-5xl font-extrabold text-gray-800 mb-6 tracking-tight">หาร้านเด็ด <span class="text-orange-500 underline decoration-wavy decoration-orange-300">ใกล้ตัวคุณ</span></h2>
+     <div class="relative pt-10 pb-20 px-4 text-center z-10"> <h2 class="text-3xl md:text-5xl font-extrabold text-gray-800 mb-6 tracking-tight">หาร้านเด็ด <span class="text-orange-500 underline decoration-wavy decoration-orange-300">ใกล้ตัวคุณ</span></h2>
         <div class="max-w-xl mx-auto bg-white rounded-full p-2 flex items-center shadow-xl border border-orange-100 transition hover:scale-[1.01]">
             <span class="pl-4 text-orange-400"><i class="fa-solid fa-search"></i></span>
             <input type="text" id="searchInput" placeholder="วันนี้กินอะไรดี..." class="flex-1 px-4 py-2 bg-transparent outline-none text-gray-700" oninput="filterRestaurants()">
         </div>
      </div>
 
-     <div class="max-w-7xl mx-auto px-4 pb-24 -mt-8">
+     <div class="max-w-7xl mx-auto px-4 pb-24 -mt-10 relative z-20"> 
+      
       <div class="flex flex-col md:flex-row justify-between gap-4 mb-8">
         <div class="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 hide-scrollbar" id="categoryFilterContainer">
             </div>
@@ -152,7 +172,7 @@
           <div><label class="text-xs font-bold text-gray-500 uppercase">หมวดหมู่</label><select id="formCategory" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-orange-500 bg-gray-50"></select></div>
           <div><label class="text-xs font-bold text-gray-500 uppercase">เขต</label><select id="formZone" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-orange-500 bg-gray-50"></select></div>
         </div>
-        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100"><label class="text-xs font-bold text-blue-600 uppercase"><i class="fa-solid fa-map-pin"></i> ลิงก์ Google Maps</label><input type="url" id="formMapUrl" class="w-full px-3 py-1 bg-white border border-blue-200 rounded-lg outline-none text-sm mt-1" placeholder="วางลิงก์ที่นี่..."></div>
+        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100"><label class="text-xs font-bold text-blue-600 uppercase"><i class="fa-solid fa-map-location-dot"></i> ลิงก์ Google Maps</label><input type="url" id="formMapUrl" class="w-full px-3 py-1 bg-white border border-blue-200 rounded-lg outline-none text-sm mt-1" placeholder="วางลิงก์ที่นี่..."></div>
         <div><label class="text-xs font-bold text-gray-500 uppercase">รายละเอียด</label><textarea id="formDescription" rows="3" class="w-full px-4 py-2 border rounded-xl outline-none focus:border-orange-500 bg-gray-50"></textarea></div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="text-xs font-bold text-gray-500 uppercase">ที่อยู่</label><input type="text" id="formAddress" class="w-full px-4 py-2 border rounded-xl outline-none bg-gray-50"></div><div><label class="text-xs font-bold text-gray-500 uppercase">เบอร์โทร</label><input type="tel" id="formPhone" class="w-full px-4 py-2 border rounded-xl outline-none bg-gray-50"></div></div>
         <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200"><div><span class="text-xs font-bold text-gray-500">เปิด</span><input type="time" id="formOpenTime" class="w-full bg-white border rounded px-2 py-1"></div><div><span class="text-xs font-bold text-gray-500">ปิด</span><input type="time" id="formCloseTime" class="w-full bg-white border rounded px-2 py-1"></div></div>
@@ -210,7 +230,7 @@
 
     // --- STARTUP ---
     window.onload = function() {
-        // 1. Generate Category Buttons & Dropdown (Ensure they match)
+        // Init Categories (Filters & Form)
         const catContainer = document.getElementById('categoryFilterContainer');
         const catSelect = document.getElementById('formCategory');
         
@@ -219,13 +239,13 @@
         catSelect.innerHTML = `<option value="">เลือกประเภท</option>`;
         
         CATEGORIES.forEach(c => {
-            // Filter Button
+            // Filter Button (Use data-name for exact match logic)
             catContainer.innerHTML += `<button onclick="setCategory('${c.name}')" class="cat-btn px-5 py-2 rounded-full text-sm font-bold whitespace-nowrap" data-name="${c.name}">${c.icon} ${c.name}</button>`;
             // Form Option
             catSelect.innerHTML += `<option value="${c.name}">${c.icon} ${c.name}</option>`;
         });
 
-        // 2. Generate Zones
+        // Init Zones
         const z = document.getElementById('zoneFilter'), fz = document.getElementById('formZone');
         DISTRICTS.sort().forEach(d => { 
             const opt = `<option value="${d}">${d}</option>`;
@@ -237,6 +257,7 @@
 
     // --- DATA SYNC ---
     function startRealtimeSync() {
+        // Restaurants
         db.ref('restaurants').on('value', (s) => { 
             const val = s.val();
             dbData.restaurants = val ? Object.keys(val).map(k => ({...val[k], __backendId: k})) : [];
@@ -245,18 +266,19 @@
             hideLoader();
         });
 
-        // Sync Reviews (Important for Star Rating)
+        // Reviews (Trigger re-render for ratings)
         db.ref('reviews').on('value', (s) => { 
             const val = s.val();
             dbData.reviews = val ? Object.keys(val).map(k => ({...val[k], __backendId: k})) : [];
-            renderGrid(dbData.restaurants); // Re-render grid to update stars
+            renderGrid(dbData.restaurants); // Update stars on cards
             if(currentUser) renderAdminReviews();
         });
         
+        // Users
         db.ref('users').on('value', (s) => { 
             const val = s.val();
             dbData.users = val ? Object.keys(val).map(k => ({...val[k], __backendId: k})) : [];
-            if(dbData.users.length === 0) {
+            if(dbData.users.length === 0) { // Create default if empty
                 create('users', { username: 'owner', password: '1234', role: 'owner' });
                 create('users', { username: 'moderator', password: '1234', role: 'moderator' });
                 create('users', { username: 'inspector', password: '1234', role: 'inspector' });
@@ -283,7 +305,12 @@
     function remove(col, id) { return db.ref(col + '/' + id).remove(); }
 
     // --- FRONTEND ---
-    function showPage(p) { document.querySelectorAll('.page').forEach(x => x.classList.add('hidden')); document.getElementById(p + 'Page').classList.remove('hidden'); window.scrollTo(0,0); }
+    function showPage(p) { 
+        document.querySelectorAll('.page').forEach(x => x.classList.add('hidden')); 
+        const t = document.getElementById(p + 'Page'); 
+        t.classList.remove('hidden'); 
+        window.scrollTo(0,0); 
+    }
     
     function setCategory(catName) { 
         categoryFilter = catName; 
