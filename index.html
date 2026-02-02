@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="th" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ร้านอาหารน่าอร่อยใกล้ฉัน</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      font-family: 'Prompt', sans-serif;
+    }
+    .gradient-bg {
+      background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcc02 100%);
+    }
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(255, 107, 53, 0.2);
+    }
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+    }
+    .star-rating {
+      color: #ffcc02;
+    }
+    .category-btn {
+      transition: all 0.2s ease;
+    }
+    .category-btn:hover, .category-btn.active {
+      background: linear-gradient(135deg, #ff6b35, #f7931e);
+      color: white;
+      transform: scale(1.05);
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .pulse-btn {
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.4); }
+      50% { box-shadow: 0 0 0 10px rgba(255, 107, 53, 0); }
+    }
+    .toast {
+      animation: slideIn 0.3s ease-out;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+ </head>
+ <body class="h-full bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+  <div id="app" class="h-full overflow-auto">
+   <div id="loadingScreen" class="fixed inset-0 gradient-bg flex items-center justify-center z-50">
+    <div class="text-center text-white">
+     <div class="text-6xl mb-4">🍜</div>
+     <div class="text-2xl font-bold">ร้านอาหารน่าอร่อยใกล้ฉัน</div>
+     <div class="mt-4 flex justify-center gap-2">
+      <div class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 0s;"></div>
+      <div class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 0.1s;"></div>
+      <div class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+     </div>
+    </div>
+   </div>
+
+   <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
+   <div id="mainContent" class="hidden">
+    <nav class="glass-effect sticky top-0 z-40 shadow-lg">
+     <div class="max-w-7xl mx-auto px-4 py-3">
+      <div class="flex items-center justify-between">
+       <div class="flex items-center gap-3 cursor-pointer" onclick="showPage('home')">
+        <div class="text-4xl">🍜</div>
+        <div>
+         <h1 id="navTitle" class="text-xl font-bold bg-gradient-to-r from-orange-600 to-amber-500 bg-clip-text text-transparent">ร้านอาหารน่าอร่อยใกล้ฉัน</h1>
+         <p class="text-xs text-gray-500">ค้นหาความอร่อยรอบตัวคุณ</p>
+        </div>
+       </div>
+       <div class="flex items-center gap-3">
+        <button onclick="showPage('home')" class="px-4 py-2 text-gray-600 hover:text-orange-500 font-medium transition-colors"> 🏠 หน้าแรก </button> 
+        <button id="adminBtn" onclick="showPage('login')" class="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-full font-medium hover:shadow-lg transition-all"> 🔐 แอดมิน </button>
+       </div>
+      </div>
+     </div>
+    </nav>
+
+    <div id="homePage" class="page">
+     <div class="gradient-bg py-16 px-4">
+      <div class="max-w-4xl mx-auto text-center text-white">
+       <h2 class="text-4xl md:text-5xl font-bold mb-4">🍽️ ค้นหาร้านอาหารอร่อย</h2>
+       <p class="text-xl opacity-90 mb-8">ร้านอาหารน่าอร่อยใกล้คุณ ครบทุกโซนในกรุงเทพฯ</p>
+       <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-full p-2 flex items-center shadow-2xl">
+         <input type="text" id="searchInput" placeholder="🔍 ค้นหาร้านอาหาร..." class="flex-1 px-4 py-2 outline-none text-gray-700 rounded-full" oninput="filterRestaurants()"> 
+         <button class="px-6 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-full font-medium hover:shadow-lg transition-all"> ค้นหา </button>
+        </div>
+       </div>
+      </div>
+     </div>
+     <div class="max-w-7xl mx-auto px-4 py-8">
+      <div class="mb-6">
+       <h3 class="text-lg font-semibold text-gray-700 mb-3">🍴 ประเภทอาหาร</h3>
+       <div class="flex flex-wrap gap-2" id="categoryFilters">
+        <button onclick="setCategory('')" class="category-btn active px-4 py-2 bg-white rounded-full shadow-md font-medium text-gray-600" data-category=""> ทั้งหมด </button> 
+        <button onclick="setCategory('ก๋วยเตี๋ยว')" class="category-btn px-4 py-2 bg-white rounded-full shadow-md font-medium text-gray-600" data-category="ก๋วยเตี๋ยว"> 🍜 ก๋วยเตี๋ยว </button> 
+        <button onclick="setCategory('อาหารตามสั่ง')" class="category-btn px-4 py-2 bg-white rounded-full shadow-md font-medium text-gray-600" data-category="อาหารตามสั่ง"> 🍳 อาหารตามสั่ง </button> 
+        <button onclick="setCategory('อาหารญี่ปุ่น')" class="category-btn px-4 py-2 bg-white rounded-full shadow-md font-medium text-gray-600" data-category="อาหารญี่ปุ่น"> 🍣 อาหารญี่ปุ่น </button>
+        <button onclick="setCategory('อาหารอีสาน')" class="category-btn px-4 py-2 bg-white rounded-full shadow-md font-medium text-gray-600" data-category="อาหารอีสาน"> 🌶️ อาหารอีสาน </button>
+        <button onclick="setCategory('ของหวาน')" class="category-btn px-4 py-2 bg-white rounded-full shadow-md font-medium text-gray-600" data-category="ของหวาน"> 🍰 ของหวาน </button>
+        <button onclick="setCategory('กาแฟ/เครื่องดื่ม')" class="category-btn px-4 py-2 bg-white rounded-full shadow-md font-medium text-gray-600" data-category="กาแฟ/เครื่องดื่ม"> ☕ กาแฟ/เครื่องดื่ม </button>
+        <button onclick="setCategory('บุฟเฟ่ต์')" class="category-btn px-4 py-2 bg-white rounded-full shadow-md font-medium text-gray-600" data-category="บุฟเฟ่ต์"> 🍖 บุฟเฟ่ต์ </button>
+       </div>
+      </div>
+      <div class="mb-8">
+       <h3 class="text-lg font-semibold text-gray-700 mb-3">📍 เขตในกรุงเทพฯ</h3>
+       <select id="zoneFilter" onchange="filterRestaurants()" class="w-full md:w-64 px-4 py-3 bg-white rounded-xl shadow-md border-0 outline-none focus:ring-2 focus:ring-orange-400 text-gray-700"> <option value="">ทุกเขต</option> </select>
+      </div>
+      <div id="restaurantGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      <div id="emptyState" class="hidden text-center py-16">
+       <div class="text-6xl mb-4">🍽️</div>
+       <h3 class="text-2xl font-bold text-gray-600 mb-2">ยังไม่มีร้านอาหาร</h3>
+       <p class="text-gray-500">กรุณารอแอดมินเพิ่มร้านอาหารเข้าสู่ระบบ</p>
+      </div>
+     </div>
+    </div>
+
+    <div id="detailPage" class="page hidden">
+     <div id="restaurantDetail" class="max-w-4xl mx-auto px-4 py-8"></div>
+    </div>
+
+    <div id="loginPage" class="page hidden">
+     <div class="min-h-screen flex items-center justify-center px-4 py-16">
+      <div class="w-full max-w-md">
+       <div class="bg-white rounded-3xl shadow-2xl p-8 fade-in">
+        <div class="text-center mb-8">
+         <div class="text-6xl mb-4">🔐</div>
+         <h2 class="text-2xl font-bold text-gray-800">เข้าสู่ระบบแอดมิน</h2>
+         <p class="text-gray-500 mt-2">Default: Admin / 12345678</p>
+        </div>
+        <div class="space-y-4">
+         <div><label class="block text-sm font-medium text-gray-700 mb-2">ชื่อผู้ใช้</label> <input type="text" id="loginUsername" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-400 outline-none"></div>
+         <div><label class="block text-sm font-medium text-gray-700 mb-2">รหัสผ่าน</label> <input type="password" id="loginPassword" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-400 outline-none"></div>
+         <div id="loginError" class="hidden text-red-500 text-sm text-center"></div>
+         <button onclick="handleLogin()" class="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all pulse-btn"> เข้าสู่ระบบ </button>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+
+    <div id="adminPage" class="page hidden">
+     <div class="max-w-7xl mx-auto px-4 py-8">
+      <div class="bg-white rounded-2xl shadow-lg p-6 mb-8 fade-in">
+       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+         <h2 class="text-2xl font-bold text-gray-800">🛠️ ระบบหลังบ้าน</h2>
+         <p class="text-gray-500">ยินดีต้อนรับ, <span id="adminName" class="font-semibold text-orange-500"></span></p>
+        </div>
+        <div class="flex gap-3">
+         <button onclick="showAdminSection('restaurants')" id="tabRestaurants" class="admin-tab px-4 py-2 bg-orange-500 text-white rounded-lg font-medium"> 🍜 จัดการร้านอาหาร </button> 
+         <button onclick="showAdminSection('users')" id="tabUsers" class="admin-tab px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium"> 👥 จัดการผู้ใช้ </button>
+         <button onclick="handleLogout()" class="px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600"> 🚪 ออกจากระบบ </button>
+        </div>
+       </div>
+      </div>
+      
+      <div id="adminRestaurants" class="admin-section">
+       <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+        <div class="flex items-center justify-between mb-6">
+         <h3 class="text-xl font-bold text-gray-800">รายการร้านอาหาร</h3>
+         <button onclick="showRestaurantForm()" class="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-medium hover:shadow-lg"> ➕ เพิ่มร้านอาหาร </button>
+        </div>
+        <div id="adminRestaurantList" class="space-y-4"></div>
+       </div>
+      </div>
+      
+      <div id="adminUsers" class="admin-section hidden">
+       <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+        <div class="flex items-center justify-between mb-6">
+         <h3 class="text-xl font-bold text-gray-800">รายการผู้ใช้</h3>
+         <button onclick="showUserForm()" class="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg font-medium hover:shadow-lg"> ➕ เพิ่มผู้ใช้ </button>
+        </div>
+        <div id="adminUserList" class="space-y-4"></div>
+       </div>
+      </div>
+     </div>
+    </div>
+
+    <div id="restaurantModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-screen overflow-y-auto">
+      <div class="p-6">
+       <div class="flex items-center justify-between mb-6">
+        <h3 id="restaurantFormTitle" class="text-xl font-bold text-gray-800">เพิ่มร้านอาหาร</h3><button onclick="closeRestaurantForm()" class="text-gray-400 text-2xl">×</button>
+       </div>
+       <div class="space-y-4">
+        <input type="text" id="formName" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="ชื่อร้าน *">
+        <select id="formCategory" class="w-full px-4 py-3 border border-gray-200 rounded-xl"> <option value="">เลือกประเภท *</option> <option value="ก๋วยเตี๋ยว">🍜 ก๋วยเตี๋ยว</option> <option value="อาหารตามสั่ง">🍳 อาหารตามสั่ง</option> <option value="อาหารญี่ปุ่น">🍣 อาหารญี่ปุ่น</option> <option value="อาหารอีสาน">🌶️ อาหารอีสาน</option> <option value="ของหวาน">🍰 ของหวาน</option> <option value="กาแฟ/เครื่องดื่ม">☕ กาแฟ/เครื่องดื่ม</option> <option value="บุฟเฟ่ต์">🍖 บุฟเฟ่ต์</option> </select>
+        <select id="formZone" class="w-full px-4 py-3 border border-gray-200 rounded-xl"> <option value="">เลือกเขต *</option> </select>
+        <textarea id="formDescription" rows="3" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="รายละเอียด"></textarea>
+        <input type="text" id="formAddress" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="ที่อยู่">
+        <input type="tel" id="formPhone" class="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="เบอร์โทร">
+        <div class="grid grid-cols-2 gap-4">
+         <input type="time" id="formOpenTime" class="w-full px-4 py-3 border border-gray-200 rounded-xl">
+         <input type="time" id="formCloseTime" class="w-full px-4 py-3 border border-gray-200 rounded-xl">
+        </div>
+        <div>
+         <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center">
+          <div id="coverPreview" class="hidden mb-4 relative"><img id="coverPreviewImg" class="w-full h-48 object-cover rounded-lg"> <button onclick="removeCoverImage()" class="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full">×</button></div>
+          <button onclick="document.getElementById('coverImageInput').click()" class="px-4 py-2 bg-orange-100 text-orange-600 rounded-lg">📁 รูปปก (Max 500px)</button>
+          <input type="file" id="coverImageInput" accept="image/*" onchange="handleCoverUpload(event)" class="hidden">
+         </div>
+        </div>
+        <div class="flex gap-4 pt-4">
+         <button onclick="closeRestaurantForm()" class="flex-1 py-3 bg-gray-200 rounded-xl">ยกเลิก</button>
+         <button onclick="saveRestaurant()" id="saveRestaurantBtn" class="flex-1 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl">บันทึก</button>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+    
+    <div id="userModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+       <h3 class="text-xl font-bold mb-4">จัดการผู้ใช้</h3>
+       <input type="text" id="formUsername" class="w-full mb-3 px-4 py-3 border rounded-xl" placeholder="Username">
+       <input type="password" id="formPassword" class="w-full mb-3 px-4 py-3 border rounded-xl" placeholder="Password">
+       <select id="formRole" class="w-full mb-3 px-4 py-3 border rounded-xl"><option value="admin">Admin</option><option value="editor">Editor</option></select>
+       <div class="flex gap-2">
+        <button onclick="closeUserForm()" class="flex-1 py-2 bg-gray-200 rounded-xl">Cancel</button>
+        <button onclick="saveUser()" class="flex-1 py-2 bg-blue-500 text-white rounded-xl">Save</button>
+       </div>
+     </div>
+    </div>
+
+    <div id="cropModal" class="fixed inset-0 bg-black bg-opacity-90 hidden items-center justify-center z-50 p-4">
+     <div class="bg-white rounded-2xl w-full max-w-4xl p-6">
+      <div class="mb-4 h-96 bg-gray-100 rounded-xl overflow-hidden"><img id="cropImage" style="max-width: 100%;"></div>
+      <div class="flex gap-4">
+       <button onclick="closeCropModal()" class="flex-1 py-3 bg-gray-200 rounded-xl">ยกเลิก</button>
+       <button onclick="confirmCrop()" class="flex-1 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl">ยืนยัน</button>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <script>
+    // --- 1. จำลองฐานข้อมูล (Mock Data Database) ---
+    // ข้อมูลชุดนี้จะถูกโหลดถ้าเครื่องผู้ใช้ยังไม่มีข้อมูล
+    const INITIAL_DB = {
+        restaurants: [
+            { __backendId: 'r1', name: 'ก๋วยเตี๋ยวเรือลุงดำ', category: 'ก๋วยเตี๋ยว', zone: 'ปทุมวัน', description: 'ก๋วยเตี๋ยวเรือรสเด็ด สูตรโบราณ', address: 'ข้างวัดปทุม', totalRating: 4.5, ratingCount: 10, openTime: '08:00', closeTime: '16:00' },
+            { __backendId: 'r2', name: 'Coffee Mania', category: 'กาแฟ/เครื่องดื่ม', zone: 'บางรัก', description: 'กาแฟสดคั่วเอง หอมกรุ่น', address: 'ปากซอยเจริญกรุง', totalRating: 5, ratingCount: 5, openTime: '07:00', closeTime: '18:00' },
+            { __backendId: 'r3', name: 'ส้มตำเจ๊ไก่', category: 'อาหารอีสาน', zone: 'จตุจักร', description: 'ส้มตำปูปลาร้า นัวๆ', address: 'ตลาดนัดจตุจักร', totalRating: 4.0, ratingCount: 8, openTime: '10:00', closeTime: '20:00' }
+        ],
+        users: [
+            { __backendId: 'u1', username: 'Admin', password: '12345678', role: 'admin' } // Default Admin
+        ],
+        reviews: []
+    };
+
+    // --- 2. สร้าง Data Service เพื่อแทนที่ Canva SDK ---
+    class LocalDataService {
+        constructor() {
+            this.STORAGE_KEY = 'restaurant_finder_db_v1';
+            this.load();
+        }
+
+        load() {
+            const data = localStorage.getItem(this.STORAGE_KEY);
+            if (data) {
+                this.db = JSON.parse(data);
+            } else {
+                this.db = JSON.parse(JSON.stringify(INITIAL_DB)); // Load initial data
+                this.save();
+            }
+        }
+
+        save() {
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.db));
+            if (this.onDataChangedCallback) {
+                // Convert object structure to flat array for compatibility with old code logic
+                const flatData = [
+                    ...this.db.restaurants.map(i => ({...i, type: 'restaurant'})),
+                    ...this.db.users.map(i => ({...i, type: 'user'})),
+                    ...this.db.reviews.map(i => ({...i, type: 'review'}))
+                ];
+                this.onDataChangedCallback(flatData);
+            }
+        }
+
+        init(options) {
+            this.onDataChangedCallback = options.onDataChanged;
+            // Trigger initial load
+            setTimeout(() => this.save(), 100); 
+            return Promise.resolve({ isOk: true });
+        }
+
+        create(item) {
+            item.__backendId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+            if (item.type === 'restaurant') this.db.restaurants.push(item);
+            else if (item.type === 'user') this.db.users.push(item);
+            else if (item.type === 'review') this.db.reviews.push(item);
+            this.save();
+            return Promise.resolve({ isOk: true });
+        }
+
+        update(item) {
+            let collection;
+            if (item.type === 'restaurant') collection = this.db.restaurants;
+            else if (item.type === 'user') collection = this.db.users;
+            else if (item.type === 'review') collection = this.db.reviews;
+
+            const index = collection.findIndex(i => i.__backendId === item.__backendId);
+            if (index !== -1) {
+                collection[index] = item;
+                this.save();
+                return Promise.resolve({ isOk: true });
+            }
+            return Promise.resolve({ isOk: false });
+        }
+
+        delete(item) {
+            let collection;
+            if (item.type === 'restaurant') collection = this.db.restaurants;
+            else if (item.type === 'user') collection = this.db.users;
+            else if (item.type === 'review') collection = this.db.reviews;
+
+            const index = collection.findIndex(i => i.__backendId === item.__backendId);
+            if (index !== -1) {
+                collection.splice(index, 1);
+                this.save();
+                return Promise.resolve({ isOk: true });
+            }
+            return Promise.resolve({ isOk: false });
+        }
+    }
+
+    // Replace window.dataSdk with our LocalDataService
+    window.dataSdk = new LocalDataService();
+
+    // --- 3. App Logic (เหมือนเดิมแต่ตัด Canva Element SDK ออก) ---
+    const bangkokDistricts = [
+      'พระนคร', 'ดุสิต', 'หนองจอก', 'บางรัก', 'บางเขน', 'บางกะปิ', 'ปทุมวัน', 'ป้อมปราบศัตรูพ่าย',
+      'พระโขนง', 'มีนบุรี', 'ลาดกระบัง', 'ยานนาวา', 'สัมพันธวงศ์', 'พญาไท', 'ธนบุรี', 'บางกอกใหญ่',
+      'ห้วยขวาง', 'คลองสาน', 'ตลิ่งชัน', 'บางกอกน้อย', 'บางขุนเทียน', 'ภาษีเจริญ', 'หนองแขม',
+      'ราษฎร์บูรณะ', 'บางพลัด', 'ดินแดง', 'บึงกุ่ม', 'สาทร', 'บางซื่อ', 'จตุจักร', 'บางคอแหลม',
+      'ประเวศ', 'คลองเตย', 'สวนหลวง', 'จอมทอง', 'ดอนเมือง', 'ราชเทวี', 'ลาดพร้าว', 'วัฒนา',
+      'บางแค', 'หลักสี่', 'สายไหม', 'คันนายาว', 'สะพานสูง', 'วังทองหลาง', 'คลองสามวา',
+      'บางนา', 'ทวีวัฒนา', 'ทุ่งครุ', 'บางบอน'
+    ];
+
+    let allData = [];
+    let restaurants = [];
+    let users = [];
+    let currentUser = null;
+    let editingRestaurant = null;
+    let editingUser = null;
+    let currentCategory = '';
+    let coverImageBase64 = '';
+    let cropper = null;
+
+    async function init() {
+        const zoneFilter = document.getElementById('zoneFilter');
+        const formZone = document.getElementById('formZone');
+        bangkokDistricts.forEach(district => {
+            zoneFilter.innerHTML += `<option value="${district}">${district}</option>`;
+            formZone.innerHTML += `<option value="${district}">${district}</option>`;
+        });
+
+        // Init Data
+        await window.dataSdk.init({
+            onDataChanged: (data) => {
+                allData = data;
+                restaurants = data.filter(d => d.type === 'restaurant');
+                users = data.filter(d => d.type === 'user');
+                renderRestaurantGrid(restaurants);
+                renderAdminRestaurants();
+                renderAdminUsers();
+            }
+        });
+
+        setTimeout(() => {
+            document.getElementById('loadingScreen').classList.add('hidden');
+            document.getElementById('mainContent').classList.remove('hidden');
+        }, 1000);
+    }
+
+    function showPage(page) {
+        document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+        document.getElementById(page + 'Page').classList.remove('hidden');
+        window.scrollTo(0,0);
+    }
+
+    function showToast(msg, type='success') {
+        const t = document.createElement('div');
+        t.className = `toast px-6 py-3 rounded-xl shadow-lg text-white font-medium ${type==='success'?'bg-green-500':'bg-red-500'}`;
+        t.textContent = msg;
+        document.getElementById('toastContainer').appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+    }
+
+    function setCategory(cat) {
+        currentCategory = cat;
+        document.querySelectorAll('.category-btn').forEach(b => b.classList.toggle('active', b.dataset.category === cat));
+        filterRestaurants();
+    }
+
+    function filterRestaurants() {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const zone = document.getElementById('zoneFilter').value;
+        const filtered = restaurants.filter(r => {
+            const mSearch = !search || r.name.toLowerCase().includes(search);
+            const mCat = !currentCategory || r.category === currentCategory;
+            const mZone = !zone || r.zone === zone;
+            return mSearch && mCat && mZone;
+        });
+        renderRestaurantGrid(filtered);
+    }
+
+    function renderRestaurantGrid(list) {
+        const grid = document.getElementById('restaurantGrid');
+        const empty = document.getElementById('emptyState');
+        if(list.length === 0) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
+        empty.classList.add('hidden');
+        grid.innerHTML = list.map(r => `
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover cursor-pointer" onclick="viewDetail('${r.__backendId}')">
+                <div class="h-48 bg-gray-200 relative" style="${r.coverImage ? `background:url('${r.coverImage}') center/cover` : ''}">
+                    ${!r.coverImage ? '<div class="flex items-center justify-center h-full text-4xl">🍜</div>' : ''}
+                    <div class="absolute top-2 right-2 bg-black bg-opacity-60 text-white px-2 py-1 rounded-lg text-sm">⭐ ${r.totalRating || 0}</div>
+                </div>
+                <div class="p-4">
+                    <h3 class="font-bold text-lg">${r.name}</h3>
+                    <p class="text-gray-500 text-sm">📍 ${r.zone} • ${r.category}</p>
+                    <p class="text-gray-400 text-xs mt-2 truncate">${r.description || ''}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function viewDetail(id) {
+        // Simple detail view for now
+        const r = restaurants.find(i => i.__backendId === id);
+        if(!r) return;
+        alert(`ร้าน: ${r.name}\nรายละเอียด: ${r.description}\nเวลา: ${r.openTime}-${r.closeTime}`);
+    }
+
+    // --- Admin & Forms ---
+    function handleLogin() {
+        const u = document.getElementById('loginUsername').value;
+        const p = document.getElementById('loginPassword').value;
+        const user = users.find(x => x.username === u && x.password === p);
+        if(user) {
+            currentUser = user;
+            document.getElementById('adminName').textContent = user.username;
+            showPage('admin');
+            showToast('ยินดีต้อนรับ ' + user.username);
+        } else {
+            document.getElementById('loginError').textContent = 'ข้อมูลไม่ถูกต้อง';
+            document.getElementById('loginError').classList.remove('hidden');
+        }
+    }
+
+    function handleLogout() {
+        currentUser = null;
+        showPage('home');
+    }
+
+    function showAdminSection(sec) {
+        document.querySelectorAll('.admin-section').forEach(x => x.classList.add('hidden'));
+        document.getElementById('admin'+sec.charAt(0).toUpperCase()+sec.slice(1)).classList.remove('hidden');
+        document.querySelectorAll('.admin-tab').forEach(t => {
+            t.classList.remove('bg-orange-500','text-white');
+            t.classList.add('bg-gray-200','text-gray-700');
+        });
+        document.getElementById('tab'+sec.charAt(0).toUpperCase()+sec.slice(1)).classList.add('bg-orange-500','text-white');
+    }
+
+    function renderAdminRestaurants() {
+        document.getElementById('adminRestaurantList').innerHTML = restaurants.map(r => `
+            <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
+                <div><div class="font-bold">${r.name}</div><div class="text-sm text-gray-500">${r.category}</div></div>
+                <div class="flex gap-2">
+                    <button onclick='showRestaurantForm(${JSON.stringify(r).replace(/'/g, "\\'")})' class="bg-blue-500 text-white px-3 py-1 rounded-lg">แก้ไข</button>
+                    <button onclick="deleteItem('restaurant','${r.__backendId}')" class="bg-red-500 text-white px-3 py-1 rounded-lg">ลบ</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderAdminUsers() {
+        document.getElementById('adminUserList').innerHTML = users.map(u => `
+            <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
+                <div><div class="font-bold">${u.username}</div><div class="text-sm text-gray-500">${u.role}</div></div>
+                ${u.username !== 'Admin' ? `<button onclick="deleteItem('user','${u.__backendId}')" class="bg-red-500 text-white px-3 py-1 rounded-lg">ลบ</button>` : ''}
+            </div>
+        `).join('');
+    }
+
+    async function deleteItem(type, id) {
+        if(!confirm('ยืนยันการลบ?')) return;
+        const item = allData.find(i => i.__backendId === id);
+        if(item) {
+            await window.dataSdk.delete(item);
+            showToast('ลบเรียบร้อย');
+        }
+    }
+
+    // --- Form Handling ---
+    function showRestaurantForm(r=null) {
+        editingRestaurant = r;
+        document.getElementById('restaurantFormTitle').textContent = r ? 'แก้ไขร้าน' : 'เพิ่มร้าน';
+        if(r) {
+            document.getElementById('formName').value = r.name;
+            document.getElementById('formCategory').value = r.category;
+            document.getElementById('formZone').value = r.zone;
+            document.getElementById('formDescription').value = r.description;
+            document.getElementById('formAddress').value = r.address;
+            document.getElementById('formPhone').value = r.phone;
+            document.getElementById('formOpenTime').value = r.openTime;
+            document.getElementById('formCloseTime').value = r.closeTime;
+            coverImageBase64 = r.coverImage || '';
+            if(coverImageBase64) {
+                document.getElementById('coverPreview').classList.remove('hidden');
+                document.getElementById('coverPreviewImg').src = coverImageBase64;
+            }
+        } else {
+            // Reset form
+            document.querySelectorAll('#restaurantModal input, #restaurantModal textarea, #restaurantModal select').forEach(i => i.value = '');
+            coverImageBase64 = '';
+            document.getElementById('coverPreview').classList.add('hidden');
+        }
+        document.getElementById('restaurantModal').classList.remove('hidden');
+        document.getElementById('restaurantModal').classList.add('flex');
+    }
+
+    function closeRestaurantForm() {
+        document.getElementById('restaurantModal').classList.add('hidden');
+        document.getElementById('restaurantModal').classList.remove('flex');
+    }
+
+    async function saveRestaurant() {
+        const name = document.getElementById('formName').value;
+        if(!name) return showToast('กรุณากรอกชื่อร้าน','error');
+        
+        const data = {
+            type: 'restaurant',
+            name,
+            category: document.getElementById('formCategory').value,
+            zone: document.getElementById('formZone').value,
+            description: document.getElementById('formDescription').value,
+            address: document.getElementById('formAddress').value,
+            phone: document.getElementById('formPhone').value,
+            openTime: document.getElementById('formOpenTime').value,
+            closeTime: document.getElementById('formCloseTime').value,
+            coverImage: coverImageBase64
+        };
+
+        if(editingRestaurant) {
+            await window.dataSdk.update({...editingRestaurant, ...data});
+        } else {
+            await window.dataSdk.create(data);
+        }
+        closeRestaurantForm();
+        showToast('บันทึกเรียบร้อย');
+    }
+
+    function showUserForm() {
+        document.getElementById('userModal').classList.remove('hidden');
+        document.getElementById('userModal').classList.add('flex');
+    }
+    function closeUserForm() {
+        document.getElementById('userModal').classList.add('hidden');
+        document.getElementById('userModal').classList.remove('flex');
+    }
+    async function saveUser() {
+        const u = document.getElementById('formUsername').value;
+        const p = document.getElementById('formPassword').value;
+        if(!u || !p) return showToast('กรอกข้อมูลให้ครบ','error');
+        await window.dataSdk.create({ type: 'user', username: u, password: p, role: document.getElementById('formRole').value });
+        closeUserForm();
+        showToast('เพิ่มผู้ใช้แล้ว');
+    }
+
+    // --- Image Handling ---
+    function handleCoverUpload(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            document.getElementById('cropImage').src = evt.target.result;
+            document.getElementById('cropModal').classList.remove('hidden');
+            document.getElementById('cropModal').classList.add('flex');
+            if(cropper) cropper.destroy();
+            cropper = new Cropper(document.getElementById('cropImage'), { aspectRatio: 16/9, viewMode: 1 });
+        };
+        reader.readAsDataURL(file);
+        e.target.value = '';
+    }
+
+    function confirmCrop() {
+        if(!cropper) return;
+        const canvas = cropper.getCroppedCanvas({ maxWidth: 500, maxHeight: 500, imageSmoothingQuality: 'medium' });
+        coverImageBase64 = canvas.toDataURL('image/jpeg', 0.6);
+        document.getElementById('coverPreview').classList.remove('hidden');
+        document.getElementById('coverPreviewImg').src = coverImageBase64;
+        closeCropModal();
+    }
+    function closeCropModal() {
+        document.getElementById('cropModal').classList.add('hidden');
+        document.getElementById('cropModal').classList.remove('flex');
+        if(cropper) cropper.destroy();
+    }
+    function removeCoverImage() {
+        coverImageBase64 = '';
+        document.getElementById('coverPreview').classList.add('hidden');
+    }
+
+    // Start App
+    init();
+  </script>
+ </body>
+</html>
