@@ -3,7 +3,7 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ร้านอาหารน่าอร่อยใกล้ฉัน</title>
+  <title>ร้านอาหารน่าอร่อยใกล้ฉัน (Online)</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -11,24 +11,24 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
   <style>
-    /* Custom Styles */
-    body { font-family: 'Prompt', sans-serif; }
+    body { font-family: 'Prompt', sans-serif; overflow-x: hidden; }
     .gradient-bg { background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcc02 100%); }
-    .card-hover { transition: all 0.3s ease; }
-    .card-hover:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(255, 107, 53, 0.2); }
     .glass-effect { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-    .category-btn { transition: all 0.2s ease; }
-    .category-btn:hover, .category-btn.active { background: linear-gradient(135deg, #ff6b35, #f7931e); color: white; transform: scale(1.05); }
-    .fade-in { animation: fadeIn 0.5s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    
-    /* Star Rating */
+    .page-enter { opacity: 0; transform: translateY(20px); }
+    .page-enter-active { opacity: 1; transform: translateY(0); transition: opacity 0.4s ease-out, transform 0.4s ease-out; }
+    .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .card-hover:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(255, 107, 53, 0.2); }
+    .category-btn { transition: all 0.3s; }
+    .category-btn.active { background: linear-gradient(135deg, #ff6b35, #f7931e); color: white; transform: scale(1.05); box-shadow: 0 4px 12px rgba(247, 147, 30, 0.4); }
     .star-rating i { cursor: pointer; transition: color 0.2s; }
-    .star-rating i.active { color: #fbbf24; } /* Amber-400 */
-    .star-rating i.inactive { color: #e5e7eb; } /* Gray-200 */
+    .star-rating i.active { color: #fbbf24; } 
+    .star-rating i.inactive { color: #e5e7eb; } 
   </style>
  </head>
  <body class="h-full bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
@@ -36,42 +36,39 @@
    
    <div id="loadingScreen" class="fixed inset-0 gradient-bg flex items-center justify-center z-[100]">
     <div class="text-center text-white">
-     <div class="text-6xl mb-4 animate-bounce">🍜</div>
-     <div class="text-2xl font-bold">กำลังโหลดความอร่อย...</div>
+     <div class="text-6xl mb-4 animate-bounce">📡</div>
+     <div class="text-2xl font-bold">กำลังเชื่อมต่อฐานข้อมูล...</div>
     </div>
    </div>
 
    <div id="mainContent" class="hidden">
-    
     <nav class="glass-effect sticky top-0 z-40 shadow-lg">
      <div class="max-w-7xl mx-auto px-4 py-3">
       <div class="flex items-center justify-between">
        <div class="flex items-center gap-3 cursor-pointer" onclick="showPage('home')">
-        <div class="text-4xl">🍜</div>
-        <div>
-         <h1 class="text-xl font-bold bg-gradient-to-r from-orange-600 to-amber-500 bg-clip-text text-transparent">ร้านอร่อยใกล้ฉัน</h1>
-        </div>
+        <div class="text-4xl text-orange-500">🍜</div>
+        <div><h1 class="text-xl font-bold bg-gradient-to-r from-orange-600 to-amber-500 bg-clip-text text-transparent">ร้านอร่อย (Online)</h1></div>
        </div>
        <div class="flex gap-2">
-        <button onclick="showPage('home')" class="px-3 py-2 text-gray-600 hover:text-orange-500 font-medium text-sm md:text-base"><i class="fa-solid fa-house"></i> หน้าแรก</button> 
-        <button id="adminBtn" onclick="showPage('login')" class="px-3 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-full font-medium shadow-md text-sm md:text-base"><i class="fa-solid fa-lock"></i> แอดมิน</button>
+        <button onclick="showPage('home')" class="px-3 py-2 text-gray-600 hover:text-orange-500 font-medium text-sm md:text-base transition"><i class="fa-solid fa-house"></i> หน้าแรก</button> 
+        <button id="adminBtn" onclick="showPage('login')" class="px-3 py-2 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-full font-medium shadow-md text-sm md:text-base hover:shadow-lg transition"><i class="fa-solid fa-lock"></i> แอดมิน</button>
        </div>
       </div>
      </div>
     </nav>
 
-    <div id="homePage" class="page">
+    <div id="homePage" class="page opacity-0">
      <div class="gradient-bg py-12 px-4 text-center text-white rounded-b-[3rem] shadow-xl mb-8">
-       <h2 class="text-3xl md:text-5xl font-bold mb-4 drop-shadow-md">ค้นหาร้านเด็ด รีวิวแน่น 🍽️</h2>
-       <div class="max-w-2xl mx-auto bg-white rounded-full p-2 flex shadow-2xl">
+       <h2 class="text-3xl md:text-5xl font-bold mb-4 drop-shadow-md">ร้านเด็ด อัปเดตเรียลไทม์ ⚡</h2>
+       <div class="max-w-2xl mx-auto bg-white rounded-full p-2 flex shadow-2xl items-center">
          <span class="pl-4 py-2 text-2xl text-gray-400"><i class="fa-solid fa-magnifying-glass"></i></span>
          <input type="text" id="searchInput" placeholder="หาร้านอะไรดี..." class="flex-1 px-4 py-2 outline-none text-gray-700 rounded-full text-lg" oninput="filterRestaurants()"> 
+         <button onclick="getLocation()" class="bg-blue-500 text-white w-10 h-10 rounded-full hover:bg-blue-600 transition flex items-center justify-center mr-1"><i class="fa-solid fa-location-arrow"></i></button>
        </div>
+       <p id="locationStatus" class="text-sm mt-2 opacity-80 h-5"></p>
      </div>
-
      <div class="max-w-7xl mx-auto px-4 pb-16">
-      <div class="mb-6">
-       <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-2" id="categoryFilters">
+      <div class="mb-6"><div class="flex gap-2 overflow-x-auto hide-scrollbar pb-2" id="categoryFilters">
         <button onclick="setCategory('')" class="category-btn active whitespace-nowrap px-4 py-2 bg-white rounded-full shadow-md font-medium text-gray-600" data-category="">ทั้งหมด</button> 
         <button onclick="setCategory('ก๋วยเตี๋ยว')" class="category-btn whitespace-nowrap px-4 py-2 bg-white rounded-full shadow-md font-medium text-gray-600" data-category="ก๋วยเตี๋ยว">🍜 ก๋วยเตี๋ยว</button> 
         <button onclick="setCategory('อาหารตามสั่ง')" class="category-btn whitespace-nowrap px-4 py-2 bg-white rounded-full shadow-md font-medium text-gray-600" data-category="อาหารตามสั่ง">🍳 อาหารตามสั่ง</button> 
@@ -80,45 +77,25 @@
         <button onclick="setCategory('ของหวาน')" class="category-btn whitespace-nowrap px-4 py-2 bg-white rounded-full shadow-md font-medium text-gray-600" data-category="ของหวาน">🍰 ของหวาน</button>
         <button onclick="setCategory('กาแฟ/เครื่องดื่ม')" class="category-btn whitespace-nowrap px-4 py-2 bg-white rounded-full shadow-md font-medium text-gray-600" data-category="กาแฟ/เครื่องดื่ม">☕ กาแฟ</button>
         <button onclick="setCategory('บุฟเฟ่ต์')" class="category-btn whitespace-nowrap px-4 py-2 bg-white rounded-full shadow-md font-medium text-gray-600" data-category="บุฟเฟ่ต์">🍖 บุฟเฟ่ต์</button>
-       </div>
-      </div>
-      
-      <div class="mb-6 flex justify-end">
-       <select id="zoneFilter" onchange="filterRestaurants()" class="w-full md:w-64 px-4 py-2 bg-white rounded-xl shadow border border-gray-100 outline-none focus:ring-2 focus:ring-orange-400 text-gray-700"> 
-         <option value="">📍 ทุกเขตในกรุงเทพฯ</option> 
-       </select>
-      </div>
-
+      </div></div>
+      <div class="mb-6 flex justify-end"><select id="zoneFilter" onchange="filterRestaurants()" class="w-full md:w-64 px-4 py-2 bg-white rounded-xl shadow border border-gray-100 outline-none focus:ring-2 focus:ring-orange-400 text-gray-700 cursor-pointer"><option value="">📍 ทุกเขตในกรุงเทพฯ</option></select></div>
       <div id="restaurantGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-      
-      <div id="emptyState" class="hidden text-center py-16 text-gray-500 bg-white rounded-2xl shadow-sm border border-dashed border-gray-300">
-        <div class="text-6xl mb-2">🍽️</div>
-        <p class="text-xl">ไม่พบร้านอาหารที่ค้นหา</p>
-      </div>
+      <div id="emptyState" class="hidden text-center py-16 text-gray-500 bg-white rounded-2xl shadow-sm border border-dashed border-gray-300"><div class="text-6xl mb-2">🍽️</div><p class="text-xl">ไม่พบร้านอาหารที่ค้นหา</p></div>
      </div>
     </div>
 
-    <div id="detailPage" class="page hidden">
-     <div class="max-w-5xl mx-auto px-4 py-8 fade-in">
-       <button onclick="showPage('home')" class="mb-4 px-4 py-2 bg-white rounded-full shadow text-gray-600 hover:text-orange-500 font-medium transition flex items-center gap-2">
-         <i class="fa-solid fa-arrow-left"></i> กลับหน้าแรก
-       </button>
-       <div id="restaurantDetailContent" class="bg-white rounded-3xl shadow-2xl overflow-hidden pb-8 min-h-[50vh]">
-         </div>
+    <div id="detailPage" class="page hidden opacity-0">
+     <div class="max-w-5xl mx-auto px-4 py-8">
+       <button onclick="showPage('home')" class="mb-4 px-4 py-2 bg-white rounded-full shadow text-gray-600 hover:text-orange-500 font-medium transition flex items-center gap-2"><i class="fa-solid fa-arrow-left"></i> กลับหน้าแรก</button>
+       <div id="restaurantDetailContent" class="bg-white rounded-3xl shadow-2xl overflow-hidden pb-8 min-h-[50vh]"></div>
      </div>
     </div>
 
-    <div id="loginPage" class="page hidden">
+    <div id="loginPage" class="page hidden opacity-0">
      <div class="min-h-screen flex items-center justify-center px-4 -mt-20">
-      <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md text-center fade-in border-t-4 border-orange-500">
-       <div class="text-5xl mb-4 text-orange-500"><i class="fa-solid fa-user-shield"></i></div>
-       <h2 class="text-2xl font-bold mb-4 text-gray-800">เข้าสู่ระบบแอดมิน</h2>
-       <div class="text-gray-500 text-xs mb-6 bg-gray-100 p-3 rounded text-left">
-           <p><b>Default Users:</b></p>
-           <p>👑 Owner: <b>admin</b> / <b>1234</b></p>
-           <p>🛠️ Moderator: <b>mod</b> / <b>1234</b></p>
-           <p>🔍 Inspector: <b>check</b> / <b>1234</b></p>
-       </div>
+      <div class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-md text-center border-t-4 border-orange-500">
+       <div class="text-5xl mb-4 text-orange-500"><i class="fa-solid fa-cloud"></i></div>
+       <h2 class="text-2xl font-bold mb-4 text-gray-800">เข้าสู่ระบบ (Online)</h2>
        <input type="text" id="loginUsername" class="w-full mb-3 px-4 py-3 border border-gray-200 rounded-xl outline-none focus:border-orange-500" placeholder="ชื่อผู้ใช้">
        <input type="password" id="loginPassword" class="w-full mb-6 px-4 py-3 border border-gray-200 rounded-xl outline-none focus:border-orange-500" placeholder="รหัสผ่าน">
        <button onclick="handleLogin()" class="w-full py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-bold hover:shadow-lg transform transition active:scale-95">เข้าสู่ระบบ</button>
@@ -126,93 +103,45 @@
      </div>
     </div>
 
-    <div id="adminPage" class="page hidden">
+    <div id="adminPage" class="page hidden opacity-0">
      <div class="max-w-7xl mx-auto px-4 py-8">
-      <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 flex flex-col md:flex-row justify-between items-center gap-4 fade-in">
+      <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
        <div>
-           <h2 class="text-2xl font-bold text-gray-800">🛠️ ระบบหลังบ้าน</h2>
-           <p class="text-sm text-gray-500">
-               เข้าสู่ระบบโดย: <span id="adminNameDisplay" class="text-orange-500 font-bold"></span> 
-               <span id="adminRoleBadge" class="ml-2 px-2 py-0.5 rounded text-xs font-bold text-white bg-gray-500">Role</span>
-           </p>
+           <h2 class="text-2xl font-bold text-gray-800">🛠️ ระบบหลังบ้าน <span class="text-xs text-green-500 bg-green-100 px-2 py-1 rounded-full">● Online</span></h2>
+           <p class="text-sm text-gray-500">Login: <span id="adminNameDisplay" class="text-orange-500 font-bold"></span> <span id="adminRoleBadge" class="ml-2 px-2 py-0.5 rounded text-xs font-bold text-white bg-gray-500">Role</span></p>
        </div>
        <div class="flex gap-2 flex-wrap justify-center">
-         <button onclick="showEditUserModal()" class="px-4 py-2 bg-blue-50 text-blue-600 rounded-full font-bold hover:bg-blue-100 transition"><i class="fa-solid fa-user-pen"></i> โปรไฟล์</button>
-         <button onclick="handleLogout()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ</button>
+         <button onclick="showRestaurantForm()" class="px-5 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow hover:shadow-lg font-medium transition transform hover:-translate-y-1"><i class="fa-solid fa-plus"></i> เพิ่มร้าน</button>
+         <button onclick="handleLogout()" class="px-4 py-2 bg-red-100 text-red-600 rounded-full hover:bg-red-500 hover:text-white transition"><i class="fa-solid fa-right-from-bracket"></i> ออก</button>
        </div>
       </div>
-
       <div class="flex gap-4 border-b border-gray-200 mb-6 overflow-x-auto">
-          <button id="tabRestBtn" onclick="switchAdminTab('restaurants')" class="px-4 py-2 border-b-2 border-transparent hover:text-orange-500 font-medium whitespace-nowrap">🏪 จัดการร้านค้า</button>
-          <button id="tabReviewBtn" onclick="switchAdminTab('reviews')" class="px-4 py-2 border-b-2 border-transparent hover:text-orange-500 font-medium whitespace-nowrap">💬 จัดการคอมเม้นท์</button>
-          <button id="tabUserBtn" onclick="switchAdminTab('users')" class="px-4 py-2 border-b-2 border-transparent hover:text-orange-500 font-medium whitespace-nowrap">👥 จัดการผู้ใช้</button>
+          <button id="tabRestBtn" onclick="switchAdminTab('restaurants')" class="px-4 py-2 border-b-2 border-transparent hover:text-orange-500 font-medium whitespace-nowrap">🏪 ร้านค้า</button>
+          <button id="tabReviewBtn" onclick="switchAdminTab('reviews')" class="px-4 py-2 border-b-2 border-transparent hover:text-orange-500 font-medium whitespace-nowrap">💬 รีวิว</button>
+          <button id="tabUserBtn" onclick="switchAdminTab('users')" class="px-4 py-2 border-b-2 border-transparent hover:text-orange-500 font-medium whitespace-nowrap">👥 ผู้ใช้</button>
       </div>
-
-      <div id="adminTabRestaurants" class="admin-tab-content hidden">
-          <div class="flex justify-between items-center mb-4">
-              <h3 class="text-xl font-bold">รายชื่อร้านอาหาร</h3>
-              <button onclick="showRestaurantForm()" class="px-5 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-full shadow hover:shadow-lg font-medium transition transform hover:-translate-y-1">➕ เพิ่มร้านใหม่</button>
-          </div>
-          <div id="adminRestaurantList" class="space-y-4"></div>
-      </div>
-
-      <div id="adminTabReviews" class="admin-tab-content hidden">
-          <h3 class="text-xl font-bold mb-4">คอมเม้นท์ทั้งหมด</h3>
-          <div id="adminReviewList" class="space-y-4"></div>
-      </div>
-
-      <div id="adminTabUsers" class="admin-tab-content hidden">
-          <div class="flex justify-between items-center mb-4">
-              <h3 class="text-xl font-bold">รายชื่อผู้ดูแลระบบ</h3>
-              <button onclick="showUserForm()" class="px-5 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-full shadow hover:shadow-lg font-medium transition transform hover:-translate-y-1">➕ เพิ่มผู้ใช้</button>
-          </div>
-          <div id="adminUserList" class="space-y-4"></div>
-      </div>
-
+      <div id="adminTabRestaurants" class="admin-tab-content hidden"><div id="adminRestaurantList" class="space-y-4"></div></div>
+      <div id="adminTabReviews" class="admin-tab-content hidden"><div id="adminReviewList" class="space-y-4"></div></div>
+      <div id="adminTabUsers" class="admin-tab-content hidden"><div id="adminUserList" class="space-y-4"></div></div>
      </div>
     </div>
 
     <div id="restaurantModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
       <div class="p-6">
-       <div class="flex justify-between items-center mb-6 border-b pb-4">
-        <h3 id="restaurantFormTitle" class="text-xl font-bold text-gray-800">จัดการร้านอาหาร</h3>
-        <button onclick="closeRestaurantForm()" class="text-3xl text-gray-400 hover:text-gray-600">×</button>
-       </div>
+       <div class="flex justify-between items-center mb-6 border-b pb-4"><h3 id="restaurantFormTitle" class="text-xl font-bold text-gray-800">จัดการร้านอาหาร</h3><button onclick="closeRestaurantForm()" class="text-3xl text-gray-400 hover:text-gray-600">×</button></div>
        <div class="space-y-4">
-        <div><label class="text-sm font-bold text-gray-700">ชื่อร้าน *</label><input type="text" id="formName" class="w-full px-4 py-2 border rounded-xl outline-none" placeholder="เช่น ก๋วยเตี๋ยวเรือรสเด็ด"></div>
+        <div><label class="text-sm font-bold text-gray-700">ชื่อร้าน *</label><input type="text" id="formName" class="w-full px-4 py-2 border rounded-xl outline-none"></div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div><label class="text-sm font-bold text-gray-700">ประเภท *</label><select id="formCategory" class="w-full px-4 py-2 border rounded-xl outline-none"><option value="">เลือกประเภท</option><option value="ก๋วยเตี๋ยว">🍜 ก๋วยเตี๋ยว</option><option value="อาหารตามสั่ง">🍳 อาหารตามสั่ง</option><option value="อาหารญี่ปุ่น">🍣 อาหารญี่ปุ่น</option><option value="อาหารอีสาน">🌶️ อาหารอีสาน</option><option value="ของหวาน">🍰 ของหวาน</option><option value="กาแฟ/เครื่องดื่ม">☕ กาแฟ/เครื่องดื่ม</option><option value="บุฟเฟ่ต์">🍖 บุฟเฟ่ต์</option></select></div>
           <div><label class="text-sm font-bold text-gray-700">เขต *</label><select id="formZone" class="w-full px-4 py-2 border rounded-xl outline-none"><option value="">เลือกเขต</option></select></div>
         </div>
-        <div><label class="text-sm font-bold text-gray-700">รายละเอียด</label><textarea id="formDescription" rows="3" class="w-full px-4 py-2 border rounded-xl outline-none" placeholder="จุดเด่น เมนูแนะนำ..."></textarea></div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div><label class="text-sm font-bold text-gray-700">ที่อยู่</label><input type="text" id="formAddress" class="w-full px-4 py-2 border rounded-xl outline-none" placeholder="ระบุสถานที่ตั้ง"></div>
-          <div><label class="text-sm font-bold text-gray-700">เบอร์โทร</label><input type="tel" id="formPhone" class="w-full px-4 py-2 border rounded-xl outline-none" placeholder="0xx-xxx-xxxx"></div>
-        </div>
-        <div class="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-xl border">
-         <div><label class="text-xs text-gray-500">เวลาเปิด</label><input type="time" id="formOpenTime" class="w-full border rounded px-2 py-1"></div>
-         <div><label class="text-xs text-gray-500">เวลาปิด</label><input type="time" id="formCloseTime" class="w-full border rounded px-2 py-1"></div>
-        </div>
-        <div class="border-2 border-dashed border-orange-200 rounded-xl p-4 bg-orange-50 text-center">
-          <label class="block font-bold mb-2 text-orange-800">📷 รูปหน้าปก (1 รูป)</label>
-          <div id="coverPreview" class="hidden mb-3 relative h-48 bg-gray-200 rounded-lg overflow-hidden group">
-            <img id="coverPreviewImg" class="h-full w-full object-cover"> 
-            <button onclick="removeCoverImage()" class="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full shadow hover:bg-red-600 transition">×</button>
-          </div>
-          <button onclick="document.getElementById('coverImageInput').click()" class="bg-white border border-orange-300 text-orange-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-orange-100 transition">📁 เลือกรูปปก</button>
-          <input type="file" id="coverImageInput" accept="image/*" onchange="handleCoverUpload(event)" class="hidden">
-        </div>
-        <div class="border-2 border-dashed border-blue-200 rounded-xl p-4 bg-blue-50">
-          <label class="block font-bold mb-2 text-blue-800">🖼️ แกลเลอรีรูปภาพ</label>
-          <div id="galleryPreviewGrid" class="grid grid-cols-3 md:grid-cols-5 gap-2 mb-3"></div>
-          <button onclick="document.getElementById('galleryImageInput').click()" class="bg-white border border-blue-300 text-blue-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-100 transition w-full">📁 เพิ่มรูปภาพ</button>
-          <input type="file" id="galleryImageInput" accept="image/*" multiple onchange="handleGalleryUpload(event)" class="hidden">
-        </div>
-        <div class="flex gap-4 pt-4 border-t">
-         <button onclick="closeRestaurantForm()" class="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition">ยกเลิก</button>
-         <button onclick="saveRestaurant()" id="saveRestaurantBtn" class="flex-1 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition">บันทึกข้อมูล</button>
-        </div>
+        <div class="bg-blue-50 p-3 rounded-xl border border-blue-200"><label class="text-sm font-bold text-blue-800">📍 พิกัด GPS</label><div class="grid grid-cols-2 gap-4 mt-2"><input type="number" id="formLat" step="any" class="w-full px-3 py-1 border rounded" placeholder="Lat"><input type="number" id="formLng" step="any" class="w-full px-3 py-1 border rounded" placeholder="Lng"></div></div>
+        <div><label class="text-sm font-bold text-gray-700">รายละเอียด</label><textarea id="formDescription" rows="3" class="w-full px-4 py-2 border rounded-xl outline-none"></textarea></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="text-sm font-bold text-gray-700">ที่อยู่</label><input type="text" id="formAddress" class="w-full px-4 py-2 border rounded-xl outline-none"></div><div><label class="text-sm font-bold text-gray-700">เบอร์โทร</label><input type="tel" id="formPhone" class="w-full px-4 py-2 border rounded-xl outline-none"></div></div>
+        <div class="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-xl border"><div><label class="text-xs text-gray-500">เปิด</label><input type="time" id="formOpenTime" class="w-full border rounded px-2 py-1"></div><div><label class="text-xs text-gray-500">ปิด</label><input type="time" id="formCloseTime" class="w-full border rounded px-2 py-1"></div></div>
+        <div class="border-2 border-dashed border-orange-200 rounded-xl p-4 bg-orange-50 text-center"><label class="block font-bold mb-2 text-orange-800">📷 รูปปก (1 รูป)</label><div id="coverPreview" class="hidden mb-3 relative h-48 bg-gray-200 rounded-lg overflow-hidden group"><img id="coverPreviewImg" class="h-full w-full object-cover"><button onclick="removeCoverImage()" class="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full">×</button></div><button onclick="document.getElementById('coverImageInput').click()" class="bg-white border border-orange-300 text-orange-600 px-4 py-2 rounded-lg text-sm font-bold">📁 เลือกรูป</button><input type="file" id="coverImageInput" accept="image/*" onchange="handleCoverUpload(event)" class="hidden"></div>
+        <div class="flex gap-4 pt-4 border-t"><button onclick="closeRestaurantForm()" class="flex-1 py-3 bg-gray-200 rounded-xl font-bold">ยกเลิก</button><button onclick="saveRestaurant()" id="saveRestaurantBtn" class="flex-1 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-bold">บันทึก</button></div>
        </div>
       </div>
      </div>
@@ -220,465 +149,145 @@
 
     <div id="userModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
-         <div class="flex justify-between items-center mb-6 border-b pb-4">
-             <h3 class="text-xl font-bold text-gray-800">จัดการผู้ใช้งาน</h3>
-             <button onclick="closeUserForm()" class="text-3xl text-gray-400 hover:text-gray-600">×</button>
-         </div>
-         <div class="space-y-4">
-           <div>
-             <label class="text-sm font-bold text-gray-700">ชื่อผู้ใช้ (Username)</label>
-             <input type="text" id="formUsername" class="w-full px-4 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-blue-400">
-           </div>
-           <div>
-             <label class="text-sm font-bold text-gray-700">รหัสผ่าน (Password)</label>
-             <input type="text" id="formPassword" class="w-full px-4 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-blue-400">
-           </div>
-           <div>
-            <label class="text-sm font-bold text-gray-700">บทบาท (Role)</label>
-            <select id="formRole" class="w-full px-4 py-2 border rounded-xl outline-none focus:ring-2 focus:ring-blue-400">
-                <option value="owner">👑 เจ้าของ (Owner) - ทำได้ทุกอย่าง</option>
-                <option value="moderator">🛠️ ผู้ควบคุม (Controller) - ร้านค้า+คอมเม้นท์</option>
-                <option value="inspector">🔍 ผู้ตรวจสอบ (Inspector) - คอมเม้นท์เท่านั้น</option>
-            </select>
-           </div>
-         </div>
-         <div class="flex gap-3 mt-6">
-           <button onclick="closeUserForm()" class="flex-1 py-2 bg-gray-200 rounded-lg font-bold">ยกเลิก</button>
-           <button onclick="saveUser()" class="flex-1 py-2 bg-blue-500 text-white rounded-lg font-bold hover:bg-blue-600">บันทึก</button>
-         </div>
+         <h3 class="text-xl font-bold mb-4">จัดการผู้ใช้งาน</h3>
+         <div class="space-y-4"><input type="text" id="formUsername" class="w-full px-4 py-2 border rounded-xl" placeholder="Username"><input type="text" id="formPassword" class="w-full px-4 py-2 border rounded-xl" placeholder="Password"><select id="formRole" class="w-full px-4 py-2 border rounded-xl"><option value="owner">👑 เจ้าของ</option><option value="moderator">🛠️ ผู้ควบคุม</option><option value="inspector">🔍 ผู้ตรวจสอบ</option></select></div>
+         <div class="flex gap-3 mt-6"><button onclick="closeUserForm()" class="flex-1 py-2 bg-gray-200 rounded-lg font-bold">ยกเลิก</button><button onclick="saveUser()" class="flex-1 py-2 bg-blue-500 text-white rounded-lg font-bold">บันทึก</button></div>
         </div>
     </div>
 
-    <div id="editUserModal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
-         <h3 class="text-xl font-bold mb-4 text-gray-800">👤 แก้ไขข้อมูลส่วนตัว</h3>
-         <div class="space-y-4">
-           <div><label class="text-sm font-bold text-gray-700">ชื่อผู้ใช้</label><input type="text" id="editUsername" class="w-full px-4 py-2 border rounded-xl outline-none"></div>
-           <div><label class="text-sm font-bold text-gray-700">รหัสผ่านใหม่</label><input type="text" id="editPassword" class="w-full px-4 py-2 border rounded-xl outline-none" placeholder="กรอกรหัสใหม่ (ถ้าจะเปลี่ยน)"></div>
-         </div>
-         <div class="flex gap-3 mt-6">
-           <button onclick="closeEditUserModal()" class="flex-1 py-2 bg-gray-200 rounded-lg font-bold">ยกเลิก</button>
-           <button onclick="saveUserUpdate()" class="flex-1 py-2 bg-blue-500 text-white rounded-lg font-bold hover:bg-blue-600">บันทึก</button>
-         </div>
-        </div>
-       </div>
-
-    <div id="imageViewerModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center z-[90] cursor-pointer" onclick="closeImageViewer()">
-      <div class="relative w-full h-full flex items-center justify-center p-4">
-        <img id="fullImage" src="" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl transition-transform duration-300 transform scale-95 opacity-0">
-        <button onclick="closeImageViewer()" class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white w-10 h-10 rounded-full flex items-center justify-center text-2xl font-bold">×</button>
-      </div>
-    </div>
-
-    <div id="cropModal" class="fixed inset-0 bg-black bg-opacity-90 hidden items-center justify-center z-[80] p-4">
-     <div class="bg-white rounded-2xl w-full max-w-4xl p-6">
-      <h3 class="text-lg font-bold mb-4">ปรับขนาดรูปปก</h3>
-      <div class="mb-4 h-[60vh] bg-gray-100 rounded-xl overflow-hidden"><img id="cropImage" style="max-width: 100%;"></div>
-      <div class="flex gap-4">
-       <button onclick="closeCropModal()" class="flex-1 py-3 bg-gray-200 rounded-xl font-bold">ยกเลิก</button>
-       <button onclick="confirmCrop()" class="flex-1 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-bold">ยืนยัน</button>
-      </div>
-     </div>
-    </div>
+    <div id="imageViewerModal" class="fixed inset-0 bg-black/95 hidden items-center justify-center z-[90] cursor-pointer" onclick="closeImageViewer()"><div class="relative w-full h-full flex items-center justify-center p-4"><img id="fullImage" src="" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl transition-transform duration-300 transform scale-95 opacity-0"><button onclick="closeImageViewer()" class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white w-10 h-10 rounded-full flex items-center justify-center text-2xl font-bold">×</button></div></div>
+    <div id="cropModal" class="fixed inset-0 bg-black bg-opacity-90 hidden items-center justify-center z-[80] p-4"><div class="bg-white rounded-2xl w-full max-w-4xl p-6"><h3 class="text-lg font-bold mb-4">ปรับขนาดรูปปก</h3><div class="mb-4 h-[60vh] bg-gray-100 rounded-xl overflow-hidden"><img id="cropImage" style="max-width: 100%;"></div><div class="flex gap-4"><button onclick="closeCropModal()" class="flex-1 py-3 bg-gray-200 rounded-xl font-bold">ยกเลิก</button><button onclick="confirmCrop()" class="flex-1 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-bold">ยืนยัน</button></div></div></div>
 
    </div>
   </div>
 
   <script>
-    // --- 1. INITIAL DATA & ROLES ---
-    // Roles: 'owner' (All), 'moderator' (Shops+Reviews), 'inspector' (Reviews Only)
-    const INITIAL_DB = {
-        restaurants: [
-            { __backendId: 'r1', name: 'ก๋วยเตี๋ยวเรือลุงดำ', category: 'ก๋วยเตี๋ยว', zone: 'ปทุมวัน', description: 'ก๋วยเตี๋ยวเรือน้ำตกสูตรโบราณ', address: 'ข้างวัดปทุมวนาราม', phone: '081-234-5678', openTime: '08:00', closeTime: '16:00', gallery: [] },
-        ],
-        reviews: [ // New Reviews Collection
-            { __backendId: 'rv1', restaurantId: 'r1', rating: 5, text: 'อร่อยมากครับ น้ำซุปเข้มข้น!', author: 'นักชิมท่านหนึ่ง', date: '2023-10-25T12:00:00.000Z' }
-        ],
-        users: [
-            { __backendId: 'u1', username: 'admin', password: '1234', role: 'owner' },
-            { __backendId: 'u2', username: 'mod', password: '1234', role: 'moderator' },
-            { __backendId: 'u3', username: 'check', password: '1234', role: 'inspector' }
-        ]
+    // --- 🔑 FIREBASE CONFIG (จากรูปที่พี่ส่งมา) ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyBHX9l4CYgX0BCFliagOnBCK1oFbu7sp9s",
+      authDomain: "rattawut-food.firebaseapp.com",
+      projectId: "rattawut-food",
+      storageBucket: "rattawut-food.firebasestorage.app",
+      messagingSenderId: "928937247925",
+      appId: "1:928937247925:web:5d58ca32296f841a126afc",
+      measurementId: "G-R2SSTS917K",
+      // 👇 บรรทัดนี้สำคัญมาก! ผมเดาว่าพี่น่าจะเลือกสิงคโปร์ (asia-southeast1)
+      databaseURL: "https://rattawut-food-default-rtdb.asia-southeast1.firebasedatabase.app"
     };
 
-    // --- 2. DATABASE SERVICE ---
-    class LocalDataService {
-        constructor() { this.KEY = 'thai_food_v5_reviews'; this.load(); }
-        load() {
-            try {
-                const d = localStorage.getItem(this.KEY);
-                this.db = d ? JSON.parse(d) : JSON.parse(JSON.stringify(INITIAL_DB));
-                if(!this.db.restaurants) this.db.restaurants = [];
-                if(!this.db.reviews) this.db.reviews = []; // Ensure reviews array exists
-                if(!this.db.users) this.db.users = [];
-                // Migration
-                this.db.restaurants.forEach(r => { if(!r.gallery) r.gallery = []; });
-                this.save();
-            } catch(e) { this.db = INITIAL_DB; }
-        }
-        save() { try { localStorage.setItem(this.KEY, JSON.stringify(this.db)); if(this.cb) this.cb(this.getAll()); } catch(e) { alert('เมมโมรี่เต็ม!'); } }
-        init(cb) { this.cb = cb; setTimeout(() => this.save(), 500); }
-        getAll() { return this.db; } // Return full DB object for easier relational access
-        create(col, item) { 
-            item.__backendId = Date.now().toString() + Math.random().toString(36).substr(2,5);
-            if(this.db[col]) this.db[col].push(item);
-            this.save(); return Promise.resolve({isOk:true});
-        }
-        update(col, item) {
-            const idx = this.db[col].findIndex(i=>i.__backendId===item.__backendId);
-            if(idx!==-1) { this.db[col][idx] = item; this.save(); }
-            return Promise.resolve({isOk:true});
-        }
-        delete(col, id) {
-            this.db[col] = this.db[col].filter(i=>i.__backendId!==id);
-            this.save(); return Promise.resolve({isOk:true});
-        }
+    // Initialize
+    if (!firebase.apps.length) {
+        try {
+            firebase.initializeApp(firebaseConfig);
+        } catch(e) { console.error("Firebase Error", e); }
     }
-    window.dataSdk = new LocalDataService();
+    const db = firebase.database();
+
+    // --- 1. CONFIG & DATA ---
+    const districts = ["พระนคร", "ดุสิต", "หนองจอก", "บางรัก", "บางเขน", "บางกะปิ", "ปทุมวัน", "ป้อมปราบศัตรูพ่าย", "พระโขนง", "มีนบุรี", "ลาดกระบัง", "ยานนาวา", "สัมพันธวงศ์", "พญาไท", "ธนบุรี", "บางกอกใหญ่", "ห้วยขวาง", "คลองสาน", "ตลิ่งชัน", "บางกอกน้อย", "บางขุนเทียน", "ภาษีเจริญ", "หนองแขม", "ราษฎร์บูรณะ", "บางพลัด", "ดินแดง", "บึงกุ่ม", "สาทร", "บางซื่อ", "จตุจักร", "บางคอแหลม", "ประเวศ", "คลองเตย", "สวนหลวง", "จอมทอง", "ดอนเมือง", "ราชเทวี", "ลาดพร้าว", "วัฒนา", "บางแค", "หลักสี่", "สายไหม", "คันนายาว", "สะพานสูง", "วังทองหลาง", "คลองสามวา", "บางนา", "ทวีวัฒนา", "ทุ่งครุ", "บางบอน"];
+    
+    // --- 2. FIREBASE SERVICE ---
+    let dbData = { restaurants:[], reviews:[], users:[] };
+    
+    function startRealtimeSync() {
+        db.ref('restaurants').on('value', (s) => { dbData.restaurants = s.val() ? Object.values(s.val()) : []; renderGrid(); if(currentUser) renderAdminRestaurants(); });
+        db.ref('reviews').on('value', (s) => { dbData.reviews = s.val() ? Object.values(s.val()) : []; if(currentUser) renderAdminReviews(); });
+        db.ref('users').on('value', (s) => { 
+            dbData.users = s.val() ? Object.values(s.val()) : [];
+            if(dbData.users.length === 0) create('users', { username: 'admin', password: '1234', role: 'owner' }); // สร้างแอดมินคนแรกให้อัตโนมัติถ้าไม่มี
+            if(currentUser) renderAdminUsers(); 
+        });
+        setTimeout(() => { document.getElementById('loadingScreen').style.display = 'none'; showPage('home'); }, 1500);
+    }
+
+    function create(col, item) { const newRef = db.ref(col).push(); item.__backendId = newRef.key; return newRef.set(item); }
+    function update(col, item) { return db.ref(col + '/' + item.__backendId).set(item); }
+    function remove(col, id) { return db.ref(col + '/' + id).remove(); }
 
     // --- 3. VARIABLES ---
-    const districts = ['พระนคร', 'ดุสิต', 'ปทุมวัน', 'บางรัก', 'บางเขน', 'บางกะปิ', 'จตุจักร', 'ลาดพร้าว', 'วัฒนา', 'พระโขนง', 'คลองเตย', 'พญาไท', 'สาทร', 'บางซื่อ', 'ธนบุรี', 'ดินแดง', 'ห้วยขวาง', 'สวนหลวง', 'บางนา'];
-    let dbData = { restaurants:[], reviews:[], users:[] };
     let currentUser = null, editingItem = null, editingUser = null;
     let categoryFilter = '', coverImg = '', galleryImgs = [], cropper = null;
     let currentReviewRating = 0;
+    let userLocation = null;
 
     // --- 4. INIT ---
     function init() {
         const z = document.getElementById('zoneFilter'), fz = document.getElementById('formZone');
         districts.sort().forEach(d => { z.innerHTML += `<option value="${d}">${d}</option>`; fz.innerHTML += `<option value="${d}">${d}</option>`; });
-        window.dataSdk.init((data) => {
-            dbData = data; // Store full DB
-            renderGrid();
-            if(currentUser) renderAdminTabs(); // Re-render admin if logged in
-        });
-        setTimeout(() => { document.getElementById('loadingScreen').style.display = 'none'; document.getElementById('mainContent').classList.remove('hidden'); }, 800);
+        startRealtimeSync();
     }
 
-    // --- 5. HELPERS ---
-    function getRestaurantRating(rId) {
-        const revs = dbData.reviews.filter(r => r.restaurantId === rId);
-        if(revs.length === 0) return { avg: 0, count: 0 };
-        const sum = revs.reduce((a, b) => a + b.rating, 0);
-        return { avg: (sum / revs.length).toFixed(1), count: revs.length };
-    }
-    
-    // --- 6. NAVIGATION ---
-    function showPage(p) { document.querySelectorAll('.page').forEach(x => x.classList.add('hidden')); document.getElementById(p + 'Page').classList.remove('hidden'); window.scrollTo(0,0); }
+    // --- 5. NAV ---
+    function showPage(p) { document.querySelectorAll('.page').forEach(x => { x.classList.remove('page-enter-active'); x.classList.add('hidden', 'page-enter'); }); const target = document.getElementById(p + 'Page'); target.classList.remove('hidden'); void target.offsetWidth; target.classList.add('page-enter-active'); target.classList.remove('page-enter', 'opacity-0'); window.scrollTo(0,0); }
     function setCategory(c) { categoryFilter = c; document.querySelectorAll('.category-btn').forEach(b => b.classList.toggle('active', b.dataset.category === c)); filterRestaurants(); }
+
+    // --- 6. GEOLOCATION ---
+    function getLocation() {
+        const status = document.getElementById('locationStatus');
+        if (!navigator.geolocation) { status.textContent = "เบราว์เซอร์ไม่รองรับ GPS"; return; }
+        status.textContent = "กำลังค้นหาพิกัด...";
+        navigator.geolocation.getCurrentPosition((pos) => {
+            userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            status.textContent = "✅ พบพิกัดแล้ว";
+            filterRestaurants();
+        }, () => { status.textContent = "❌ ไม่สามารถระบุพิกัดได้"; });
+    }
+    function calculateDistance(lat1, lon1, lat2, lon2) { if(!lat1 || !lon1 || !lat2 || !lon2) return null; const R = 6371; const dLat = (lat2-lat1) * Math.PI/180; const dLon = (lon2-lon1) * Math.PI/180; const a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)*Math.sin(dLon/2); return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))); }
 
     // --- 7. HOME & GRID ---
     function filterRestaurants() {
         const s = document.getElementById('searchInput').value.toLowerCase();
         const z = document.getElementById('zoneFilter').value;
-        const list = dbData.restaurants.filter(r => (!s || r.name.toLowerCase().includes(s)) && (!categoryFilter || r.category === categoryFilter) && (!z || r.zone === z));
+        let list = dbData.restaurants.filter(r => (!s || r.name.toLowerCase().includes(s)) && (!categoryFilter || r.category === categoryFilter) && (!z || r.zone === z));
+        if(userLocation) { list = list.map(r => ({ ...r, distance: calculateDistance(userLocation.lat, userLocation.lng, r.lat, r.lng) })).sort((a,b) => (a.distance===null?1:a.distance) - (b.distance===null?1:b.distance)); }
         renderGrid(list);
     }
-    
-    function renderGrid(list = dbData.restaurants) {
+    function renderGrid(list) {
         const g = document.getElementById('restaurantGrid'), e = document.getElementById('emptyState');
         if(list.length===0) { g.innerHTML=''; e.classList.remove('hidden'); return; }
         e.classList.add('hidden');
         g.innerHTML = list.map(r => {
             const stats = getRestaurantRating(r.__backendId);
-            return `
-            <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover cursor-pointer group border border-gray-100" onclick="viewDetail('${r.__backendId}')">
-                <div class="h-56 bg-gray-200 relative overflow-hidden">
-                     ${r.coverImage ? `<div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image:url('${r.coverImage}')"></div>` : `<div class="flex items-center justify-center h-full text-4xl bg-orange-100 text-orange-300">🍜</div>`}
-                     <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-orange-600 shadow-sm">${r.category}</div>
-                     <div class="absolute top-3 right-3 bg-black/70 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-yellow-400 shadow-sm flex items-center gap-1">
-                        <i class="fa-solid fa-star"></i> ${stats.avg} (${stats.count})
-                     </div>
-                </div>
-                <div class="p-5">
-                    <h3 class="font-bold text-xl text-gray-800 mb-1 leading-tight">${r.name}</h3>
-                    <div class="text-sm text-gray-500 mb-3 flex items-center gap-1"><span class="text-red-500">📍</span> ${r.zone}</div>
-                    <p class="text-gray-500 text-sm line-clamp-2 mb-4 h-10">${r.description || 'ไม่มีรายละเอียดเพิ่มเติม'}</p>
-                </div>
-            </div>`;
+            const distStr = r.distance ? `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-xs ml-2 font-bold"><i class="fa-solid fa-location-dot"></i> ${r.distance.toFixed(1)} km</span>` : '';
+            return `<div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover cursor-pointer group border border-gray-100" onclick="viewDetail('${r.__backendId}')"><div class="h-56 bg-gray-200 relative overflow-hidden">${r.coverImage ? `<div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image:url('${r.coverImage}')"></div>` : `<div class="flex items-center justify-center h-full text-4xl bg-orange-100 text-orange-300">🍜</div>`}<div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-orange-600 shadow-sm">${r.category}</div><div class="absolute top-3 right-3 bg-black/70 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-yellow-400 shadow-sm flex items-center gap-1"><i class="fa-solid fa-star"></i> ${stats.avg} (${stats.count})</div></div><div class="p-5"><h3 class="font-bold text-xl text-gray-800 mb-1 leading-tight">${r.name} ${distStr}</h3><div class="text-sm text-gray-500 mb-3 flex items-center gap-1"><span class="text-red-500">📍</span> ${r.zone}</div><p class="text-gray-500 text-sm line-clamp-2 mb-4 h-10">${r.description || 'ไม่มีรายละเอียดเพิ่มเติม'}</p></div></div>`;
         }).join('');
     }
+    function getRestaurantRating(rId) { const revs = dbData.reviews.filter(r => r.restaurantId === rId); if(revs.length === 0) return { avg: 0, count: 0 }; return { avg: (revs.reduce((a, b) => a + b.rating, 0) / revs.length).toFixed(1), count: revs.length }; }
 
-    // --- 8. DETAIL PAGE & REVIEWS ---
+    // --- 8. DETAIL PAGE ---
     function viewDetail(id) {
         const r = dbData.restaurants.find(i => i.__backendId === id);
         if(!r) return;
         const stats = getRestaurantRating(id);
         const reviews = dbData.reviews.filter(rv => rv.restaurantId === id).sort((a,b) => new Date(b.date) - new Date(a.date));
-        
-        // Gallery HTML
         const galleryHtml = (r.gallery && r.gallery.length > 0) ? `<div class="mt-8"><h3 class="text-xl font-bold mb-4">📸 รูปภาพเพิ่มเติม</h3><div class="grid grid-cols-2 md:grid-cols-4 gap-3">${r.gallery.map(img => `<div class="aspect-square rounded-xl overflow-hidden shadow-sm cursor-zoom-in group" onclick="openImageViewer('${img}')"><img src="${img}" class="w-full h-full object-cover transition duration-300 group-hover:scale-110"></div>`).join('')}</div></div>` : '';
-
-        // Reviews HTML
-        const reviewsHtml = `
-            <div class="mt-8 pt-8 border-t">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-2xl font-bold text-gray-800">💬 รีวิวจากลูกค้า <span class="text-base font-normal text-gray-500">(${reviews.length})</span></h3>
-                    <div class="text-yellow-500 text-xl font-bold"><i class="fa-solid fa-star"></i> ${stats.avg}/5</div>
-                </div>
-
-                <div class="bg-orange-50 p-6 rounded-2xl border border-orange-100 mb-8">
-                    <h4 class="font-bold text-gray-800 mb-3">เขียนรีวิวร้านนี้</h4>
-                    <div class="flex gap-2 mb-4 star-rating" id="reviewStarInput">
-                        ${[1,2,3,4,5].map(i => `<i class="fa-solid fa-star text-2xl inactive" onclick="setReviewRating(${i})" data-val="${i}"></i>`).join('')}
-                    </div>
-                    <input type="text" id="reviewAuthor" class="w-full mb-3 px-4 py-2 border rounded-xl" placeholder="ชื่อของคุณ (ไม่ต้องระบุก็ได้)">
-                    <textarea id="reviewText" rows="2" class="w-full mb-3 px-4 py-2 border rounded-xl" placeholder="รสชาติเป็นอย่างไรบ้าง?"></textarea>
-                    <button onclick="submitReview('${r.__backendId}')" class="bg-orange-500 text-white px-6 py-2 rounded-xl font-bold hover:bg-orange-600 transition">ส่งรีวิว</button>
-                </div>
-
-                <div class="space-y-4">
-                    ${reviews.length === 0 ? '<p class="text-gray-400 text-center">ยังไม่มีรีวิว เป็นคนแรกเลย!</p>' : 
-                      reviews.map(rv => `
-                        <div class="bg-gray-50 p-4 rounded-xl flex gap-4">
-                            <div class="w-10 h-10 rounded-full bg-orange-200 flex items-center justify-center text-orange-600 font-bold shrink-0">
-                                ${rv.author.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="font-bold text-gray-800">${rv.author}</span>
-                                    <div class="text-yellow-400 text-xs">${'<i class="fa-solid fa-star"></i>'.repeat(rv.rating)}</div>
-                                    <span class="text-xs text-gray-400 ml-2">${new Date(rv.date).toLocaleDateString('th-TH')}</span>
-                                </div>
-                                <p class="text-gray-600 text-sm">${rv.text}</p>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-
-        document.getElementById('restaurantDetailContent').innerHTML = `
-            <div class="h-[40vh] w-full bg-gray-200 relative group overflow-hidden cursor-zoom-in" onclick="openImageViewer('${r.coverImage || ''}')">
-                 ${r.coverImage ? `<div class="w-full h-full bg-cover bg-center" style="background-image:url('${r.coverImage}')"></div>` : `<div class="flex items-center justify-center h-full text-8xl bg-orange-100 text-orange-300">🍜</div>`}
-                 <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-                 <div class="absolute bottom-0 left-0 right-0 p-8 text-white">
-                    <span class="bg-orange-500 px-3 py-1 rounded-full text-sm font-bold mb-2 inline-block">${r.category}</span>
-                    <h1 class="text-3xl font-bold mb-2">${r.name}</h1>
-                    <p class="opacity-90">📍 เขต${r.zone} | 🕒 ${r.openTime} - ${r.closeTime}</p>
-                 </div>
-            </div>
-            <div class="p-8">
-                <div class="grid md:grid-cols-3 gap-8">
-                    <div class="md:col-span-2">
-                        <h3 class="font-bold text-gray-800 mb-3 text-2xl">รายละเอียด</h3>
-                        <p class="text-gray-600 leading-relaxed text-lg">${r.description || '-'}</p>
-                        ${galleryHtml}
-                        ${reviewsHtml}
-                    </div>
-                    <div class="md:col-span-1">
-                        <div class="bg-white p-6 rounded-2xl border shadow-sm sticky top-24">
-                            <h4 class="font-bold text-gray-800 mb-4">ข้อมูลติดต่อ</h4>
-                            <ul class="space-y-3 text-gray-600">
-                                <li>🏠 ${r.address || '-'}</li>
-                                <li>📞 <a href="tel:${r.phone}" class="text-orange-600 font-bold">${r.phone || '-'}</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
+        const reviewsHtml = `<div class="mt-8 pt-8 border-t"><div class="flex justify-between items-center mb-6"><h3 class="text-2xl font-bold text-gray-800">💬 รีวิว <span class="text-base font-normal text-gray-500">(${reviews.length})</span></h3><div class="text-yellow-500 text-xl font-bold"><i class="fa-solid fa-star"></i> ${stats.avg}/5</div></div><div class="bg-orange-50 p-6 rounded-2xl border border-orange-100 mb-8"><h4 class="font-bold text-gray-800 mb-3">เขียนรีวิว</h4><div class="flex gap-2 mb-4 star-rating" id="reviewStarInput">${[1,2,3,4,5].map(i => `<i class="fa-solid fa-star text-2xl inactive" onclick="setReviewRating(${i})" data-val="${i}"></i>`).join('')}</div><input type="text" id="reviewAuthor" class="w-full mb-3 px-4 py-2 border rounded-xl" placeholder="ชื่อของคุณ"><textarea id="reviewText" rows="2" class="w-full mb-3 px-4 py-2 border rounded-xl" placeholder="รสชาติเป็นไง..."></textarea><button onclick="submitReview('${r.__backendId}')" class="bg-orange-500 text-white px-6 py-2 rounded-xl font-bold hover:bg-orange-600 transition">ส่งรีวิว</button></div><div class="space-y-4">${reviews.length === 0 ? '<p class="text-gray-400">ยังไม่มีรีวิว</p>' : reviews.map(rv => `<div class="bg-gray-50 p-4 rounded-xl flex gap-4"><div class="w-10 h-10 rounded-full bg-orange-200 flex items-center justify-center text-orange-600 font-bold shrink-0">${rv.author.charAt(0).toUpperCase()}</div><div><div class="flex items-center gap-2 mb-1"><span class="font-bold text-gray-800">${rv.author}</span><div class="text-yellow-400 text-xs">${'<i class="fa-solid fa-star"></i>'.repeat(rv.rating)}</div><span class="text-xs text-gray-400 ml-2">${new Date(rv.date).toLocaleDateString('th-TH')}</span></div><p class="text-gray-600 text-sm">${rv.text}</p></div></div>`).join('')}</div></div>`;
+        document.getElementById('restaurantDetailContent').innerHTML = `<div class="h-[40vh] w-full bg-gray-200 relative group overflow-hidden cursor-zoom-in" onclick="openImageViewer('${r.coverImage || ''}')">${r.coverImage ? `<div class="w-full h-full bg-cover bg-center" style="background-image:url('${r.coverImage}')"></div>` : `<div class="flex items-center justify-center h-full text-8xl bg-orange-100 text-orange-300">🍜</div>`}<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div><div class="absolute bottom-0 left-0 right-0 p-8 text-white"><span class="bg-orange-500 px-3 py-1 rounded-full text-sm font-bold mb-2 inline-block">${r.category}</span><h1 class="text-3xl font-bold mb-2">${r.name}</h1><p class="opacity-90">📍 เขต${r.zone} | 🕒 ${r.openTime} - ${r.closeTime}</p></div></div><div class="p-8"><div class="grid md:grid-cols-3 gap-8"><div class="md:col-span-2"><h3 class="font-bold text-gray-800 mb-3 text-2xl">รายละเอียด</h3><p class="text-gray-600 leading-relaxed text-lg">${r.description || '-'}</p>${galleryHtml}${reviewsHtml}</div><div class="md:col-span-1"><div class="bg-white p-6 rounded-2xl border shadow-sm sticky top-24"><h4 class="font-bold text-gray-800 mb-4">ข้อมูลติดต่อ</h4><ul class="space-y-3 text-gray-600"><li>🏠 ${r.address || '-'}</li><li>📞 ${r.phone || '-'}</li></ul><button onclick="window.open('https://www.google.com/maps/search/?api=1&query=${r.lat||''},${r.lng||''}')" class="w-full mt-4 py-2 bg-blue-500 text-white rounded-lg font-bold">🗺️ แผนที่</button></div></div></div></div>`;
         showPage('detail');
-        setReviewRating(0); // Reset stars
+        setReviewRating(0);
     }
+    function setReviewRating(val) { currentReviewRating = val; document.querySelectorAll('#reviewStarInput i').forEach(star => { const v=parseInt(star.dataset.val); star.className=`fa-solid fa-star text-2xl ${v<=val?'active':'inactive'}`; }); }
+    async function submitReview(rId) { if(currentReviewRating===0)return alert('ให้ดาวด้วยครับ'); const t=document.getElementById('reviewText').value.trim(), a=document.getElementById('reviewAuthor').value.trim()||'ผู้เยี่ยมชม'; await create('reviews', {restaurantId:rId, rating:currentReviewRating, text:t, author:a, date:new Date().toISOString()}); alert('ขอบคุณครับ!'); viewDetail(rId); }
 
-    // --- 9. REVIEW LOGIC ---
-    function setReviewRating(val) {
-        currentReviewRating = val;
-        document.querySelectorAll('#reviewStarInput i').forEach(star => {
-            const v = parseInt(star.dataset.val);
-            star.className = `fa-solid fa-star text-2xl ${v <= val ? 'active' : 'inactive'}`;
-        });
-    }
-
-    async function submitReview(rId) {
-        if(currentReviewRating === 0) return alert('กรุณาให้ดาวก่อนส่งรีวิว');
-        const text = document.getElementById('reviewText').value.trim();
-        const author = document.getElementById('reviewAuthor').value.trim() || 'ผู้เยี่ยมชม';
-        
-        await window.dataSdk.create('reviews', {
-            restaurantId: rId,
-            rating: currentReviewRating,
-            text: text,
-            author: author,
-            date: new Date().toISOString()
-        });
-
-        alert('ขอบคุณสำหรับรีวิวครับ!');
-        viewDetail(rId); // Refresh
-    }
-
-    // --- 10. ADMIN & ROLES ---
-    function handleLogin() {
-        const u = document.getElementById('loginUsername').value;
-        const p = document.getElementById('loginPassword').value;
-        const user = dbData.users.find(x => x.username === u && x.password === p);
-        if(user) { 
-            currentUser = user; 
-            document.getElementById('adminNameDisplay').textContent = u;
-            document.getElementById('adminRoleBadge').textContent = getRoleName(user.role);
-            document.getElementById('adminRoleBadge').className = `ml-2 px-2 py-0.5 rounded text-xs font-bold text-white ${getRoleColor(user.role)}`;
-            renderAdminTabs();
-            showPage('admin'); 
-            document.getElementById('loginUsername').value = ''; document.getElementById('loginPassword').value = '';
-        } else alert('❌ รหัสผิด');
-    }
-
-    function getRoleName(role) {
-        if(role === 'owner') return 'เจ้าของ';
-        if(role === 'moderator') return 'ผู้ควบคุม';
-        if(role === 'inspector') return 'ผู้ตรวจสอบ';
-        return 'Unknown';
-    }
-
-    function getRoleColor(role) {
-        if(role === 'owner') return 'bg-yellow-500';
-        if(role === 'moderator') return 'bg-blue-500';
-        if(role === 'inspector') return 'bg-gray-500';
-        return 'bg-gray-400';
-    }
-
-    function renderAdminTabs() {
-        // Permissions Logic
-        const role = currentUser.role;
-        const canManageRest = role === 'owner' || role === 'moderator';
-        const canManageUsers = role === 'owner';
-        
-        // Hide/Show Tabs Buttons
-        document.getElementById('tabRestBtn').style.display = canManageRest ? 'block' : 'none';
-        document.getElementById('tabUserBtn').style.display = canManageUsers ? 'block' : 'none';
-        document.getElementById('tabReviewBtn').style.display = 'block'; // Everyone sees reviews
-
-        // Default Tab
-        if(canManageRest) switchAdminTab('restaurants');
-        else switchAdminTab('reviews');
-    }
-
-    function switchAdminTab(tabName) {
-        document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
-        document.querySelectorAll('#adminPage button[id^="tab"]').forEach(b => b.classList.remove('text-orange-500', 'border-orange-500'));
-        
-        document.getElementById(`adminTab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.remove('hidden');
-        
-        // Render Content based on tab
-        if(tabName === 'restaurants') renderAdminRestaurants();
-        if(tabName === 'reviews') renderAdminReviews();
-        if(tabName === 'users') renderAdminUsers();
-    }
-
-    function renderAdminRestaurants() {
-        const list = document.getElementById('adminRestaurantList');
-        list.innerHTML = dbData.restaurants.map(r => `
-            <div class="flex justify-between items-center p-4 bg-white rounded-xl shadow-sm border gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded bg-gray-200 overflow-hidden shrink-0">${r.coverImage ? `<img src="${r.coverImage}" class="w-full h-full object-cover">` : ''}</div>
-                    <div class="font-bold">${r.name}</div>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick='showRestaurantForm(${JSON.stringify(r).replace(/'/g, "\\'")})' class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-sm font-bold">แก้ไข</button>
-                    <button onclick="deleteItem('restaurants', '${r.__backendId}')" class="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-sm font-bold">ลบ</button>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function renderAdminReviews() {
-        const list = document.getElementById('adminReviewList');
-        const reviews = dbData.reviews;
-        if(reviews.length === 0) return list.innerHTML = '<p class="text-gray-400">ไม่มีรีวิว</p>';
-        
-        list.innerHTML = reviews.map(rv => {
-            const rName = dbData.restaurants.find(r => r.__backendId === rv.restaurantId)?.name || 'Unknown Shop';
-            return `
-            <div class="p-4 bg-white rounded-xl shadow-sm border">
-                <div class="flex justify-between mb-2">
-                    <div class="font-bold text-gray-800">${rName}</div>
-                    <div class="text-yellow-500 text-sm"><i class="fa-solid fa-star"></i> ${rv.rating}</div>
-                </div>
-                <p class="text-gray-600 text-sm mb-2">"${rv.text}" - <b>${rv.author}</b></p>
-                <div class="flex justify-end">
-                    <button onclick="deleteItem('reviews', '${rv.__backendId}')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-xs font-bold hover:bg-red-200">ลบรีวิวนี้</button>
-                </div>
-            </div>`;
-        }).join('');
-    }
-
-    function renderAdminUsers() {
-        const list = document.getElementById('adminUserList');
-        list.innerHTML = dbData.users.map(u => `
-            <div class="flex justify-between items-center p-4 bg-white rounded-xl shadow-sm border">
-                <div>
-                    <div class="font-bold">${u.username}</div>
-                    <div class="text-xs text-gray-500 uppercase">${getRoleName(u.role)}</div>
-                </div>
-                ${u.username !== 'admin' ? `<div class="flex gap-2">
-                    <button onclick='showUserForm(${JSON.stringify(u).replace(/'/g, "\\'")})' class="px-3 py-1 bg-blue-50 text-blue-600 rounded text-xs font-bold">แก้ไข</button>
-                    <button onclick="deleteItem('users', '${u.__backendId}')" class="px-3 py-1 bg-red-50 text-red-600 rounded text-xs font-bold">ลบ</button>
-                </div>` : ''}
-            </div>
-        `).join('');
-    }
-
-    // --- 11. FORM HANDLING (CRUD) ---
-    function showRestaurantForm(r=null) {
-        editingItem = r;
-        document.getElementById('restaurantFormTitle').textContent = r ? '✏️ แก้ไขร้าน' : '➕ เพิ่มร้านใหม่';
-        ['Name','Category','Zone','Description','Address','Phone','OpenTime','CloseTime'].forEach(k => document.getElementById('form'+k).value = r ? (r[k.toLowerCase().replace('name','name').replace('time','Time')] || '') : '');
-        coverImg = r?.coverImage || ''; galleryImgs = r?.gallery ? [...r.gallery] : [];
-        updatePreviews();
-        document.getElementById('restaurantModal').classList.remove('hidden'); document.getElementById('restaurantModal').classList.add('flex');
-    }
+    // --- 9. ADMIN ---
+    function handleLogin() { const u=document.getElementById('loginUsername').value, p=document.getElementById('loginPassword').value; const user=dbData.users.find(x => x.username===u && x.password===p); if(user){ currentUser=user; document.getElementById('adminNameDisplay').textContent=u; document.getElementById('adminRoleBadge').textContent=user.role; renderAdminTabs(); showPage('admin'); } else alert('❌ รหัสผิด (หรือระบบยังโหลดข้อมูลไม่เสร็จ)'); }
+    function renderAdminTabs() { const r=currentUser.role; document.getElementById('tabRestBtn').style.display=(r==='owner'||r==='moderator')?'block':'none'; document.getElementById('tabUserBtn').style.display=(r==='owner')?'block':'none'; (r==='owner'||r==='moderator')?switchAdminTab('restaurants'):switchAdminTab('reviews'); }
+    function switchAdminTab(t) { document.querySelectorAll('.admin-tab-content').forEach(e=>e.classList.add('hidden')); document.getElementById('adminTab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.remove('hidden'); if(t==='restaurants')renderAdminRestaurants(); if(t==='reviews')renderAdminReviews(); if(t==='users')renderAdminUsers(); }
     
-    function showUserForm(u=null) {
-        editingUser = u;
-        document.getElementById('formUsername').value = u ? u.username : '';
-        document.getElementById('formPassword').value = u ? u.password : '';
-        document.getElementById('formRole').value = u ? u.role : 'inspector';
-        document.getElementById('userModal').classList.remove('hidden'); document.getElementById('userModal').classList.add('flex');
-    }
+    function renderAdminRestaurants() { document.getElementById('adminRestaurantList').innerHTML=dbData.restaurants.map(r=>`<div class="flex justify-between items-center p-4 bg-white rounded-xl shadow-sm border gap-4"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded bg-gray-200 overflow-hidden shrink-0">${r.coverImage?`<img src="${r.coverImage}" class="w-full h-full object-cover">`:''}</div><div class="font-bold">${r.name}</div></div><div class="flex gap-2"><button onclick='showRestaurantForm(${JSON.stringify(r).replace(/'/g, "\\'")})' class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-sm font-bold">แก้ไข</button><button onclick="deleteItem('restaurants','${r.__backendId}')" class="px-3 py-1 bg-red-50 text-red-600 rounded-lg text-sm font-bold">ลบ</button></div></div>`).join(''); }
+    function renderAdminReviews() { document.getElementById('adminReviewList').innerHTML=dbData.reviews.map(rv=>`<div class="p-4 bg-white rounded-xl shadow-sm border"><div class="flex justify-between mb-2"><div class="font-bold text-gray-800">${dbData.restaurants.find(r=>r.__backendId===rv.restaurantId)?.name||'Unknown'}</div><div class="text-yellow-500 text-sm"><i class="fa-solid fa-star"></i> ${rv.rating}</div></div><p class="text-gray-600 text-sm mb-2">"${rv.text}" - <b>${rv.author}</b></p><div class="flex justify-end"><button onclick="deleteItem('reviews','${rv.__backendId}')" class="px-3 py-1 bg-red-100 text-red-600 rounded-lg text-xs font-bold hover:bg-red-200">ลบรีวิว</button></div></div>`).join(''); }
+    function renderAdminUsers() { document.getElementById('adminUserList').innerHTML=dbData.users.map(u=>`<div class="flex justify-between items-center p-4 bg-white rounded-xl shadow-sm border"><div><div class="font-bold">${u.username}</div><div class="text-xs text-gray-500 uppercase">${u.role}</div></div>${u.username!=='admin'?`<div class="flex gap-2"><button onclick="deleteItem('users','${u.__backendId}')" class="px-3 py-1 bg-red-50 text-red-600 rounded text-xs font-bold">ลบ</button></div>`:''}</div>`).join(''); }
 
-    async function saveRestaurant() {
-        const name = document.getElementById('formName').value.trim();
-        if(!name) return alert('❗ ระบุชื่อร้าน');
-        const data = { name, category: document.getElementById('formCategory').value, zone: document.getElementById('formZone').value, description: document.getElementById('formDescription').value, address: document.getElementById('formAddress').value, phone: document.getElementById('formPhone').value, openTime: document.getElementById('formOpenTime').value, closeTime: document.getElementById('formCloseTime').value, coverImage: coverImg, gallery: galleryImgs };
-        editingItem ? await window.dataSdk.update('restaurants', {...editingItem, ...data}) : await window.dataSdk.create('restaurants', data);
-        closeRestaurantForm(); renderAdminRestaurants();
-    }
+    // --- 10. FORM & UTILS ---
+    function showRestaurantForm(r=null) { editingItem=r; document.getElementById('restaurantFormTitle').textContent=r?'✏️ แก้ไข':'➕ เพิ่มร้าน'; ['Name','Category','Zone','Description','Address','Phone','OpenTime','CloseTime','Lat','Lng'].forEach(k => document.getElementById('form'+k).value = r?(r[k.toLowerCase().replace('name','name').replace('time','Time')]||''):''); coverImg=r?.coverImage||''; galleryImgs=r?.gallery?[...r.gallery]:[]; updatePreviews(); document.getElementById('restaurantModal').classList.remove('hidden'); document.getElementById('restaurantModal').classList.add('flex'); }
+    function showUserForm() { document.getElementById('userModal').classList.remove('hidden'); document.getElementById('userModal').classList.add('flex'); }
+    async function saveRestaurant() { const name=document.getElementById('formName').value; if(!name)return alert('ใส่ชื่อร้าน'); const data={name,category:document.getElementById('formCategory').value,zone:document.getElementById('formZone').value,description:document.getElementById('formDescription').value,address:document.getElementById('formAddress').value,phone:document.getElementById('formPhone').value,openTime:document.getElementById('formOpenTime').value,closeTime:document.getElementById('formCloseTime').value,lat:parseFloat(document.getElementById('formLat').value),lng:parseFloat(document.getElementById('formLng').value),coverImage:coverImg,gallery:galleryImgs}; editingItem?await update('restaurants',{...editingItem,...data}):await create('restaurants',data); closeRestaurantForm(); }
+    async function saveUser() { const u=document.getElementById('formUsername').value, p=document.getElementById('formPassword').value, r=document.getElementById('formRole').value; if(!u||!p)return; await create('users',{username:u,password:p,role:r}); closeUserForm(); }
+    async function deleteItem(col,id) { if(confirm('ลบนะ?')) await remove(col,id); }
 
-    async function saveUser() {
-        const username = document.getElementById('formUsername').value.trim();
-        const password = document.getElementById('formPassword').value.trim();
-        const role = document.getElementById('formRole').value;
-        if(!username || !password) return alert('กรอกให้ครบ');
-        const data = { username, password, role };
-        editingUser ? await window.dataSdk.update('users', {...editingUser, ...data}) : await window.dataSdk.create('users', data);
-        closeUserForm(); renderAdminUsers();
-    }
-
-    async function deleteItem(col, id) {
-        if(confirm('ยืนยันการลบ?')) {
-            await window.dataSdk.delete(col, id);
-            if(col === 'restaurants') renderAdminRestaurants();
-            if(col === 'reviews') renderAdminReviews();
-            if(col === 'users') renderAdminUsers();
-        }
-    }
-
-    // --- 12. UTILS: Image & Modal ---
     function closeRestaurantForm() { document.getElementById('restaurantModal').classList.add('hidden'); document.getElementById('restaurantModal').classList.remove('flex'); }
     function closeUserForm() { document.getElementById('userModal').classList.add('hidden'); document.getElementById('userModal').classList.remove('flex'); }
-    function handleLogout() { if(confirm('ออก?')) { currentUser = null; showPage('home'); } }
-    
-    // Edit Own Profile
-    function showEditUserModal() { document.getElementById('editUsername').value = currentUser.username; document.getElementById('editPassword').value = currentUser.password; document.getElementById('editUserModal').classList.remove('hidden'); document.getElementById('editUserModal').classList.add('flex'); }
-    function closeEditUserModal() { document.getElementById('editUserModal').classList.add('hidden'); document.getElementById('editUserModal').classList.remove('flex'); }
-    async function saveUserUpdate() {
-        currentUser.username = document.getElementById('editUsername').value; currentUser.password = document.getElementById('editPassword').value;
-        await window.dataSdk.update('users', currentUser);
-        closeEditUserModal(); handleLogout();
-    }
-
-    // Image Handlers (Same as before)
+    function handleLogout() { currentUser=null; showPage('home'); }
     function resizeImage(file, maxWidth = 500) { return new Promise((resolve) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = (e) => { const img = new Image(); img.src = e.target.result; img.onload = () => { const canvas = document.createElement('canvas'); const ratio = maxWidth / img.width; canvas.width = maxWidth; canvas.height = img.height * ratio; canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); resolve(canvas.toDataURL('image/jpeg', 0.6)); }; }; }); }
     function handleCoverUpload(e) { const f=e.target.files[0]; if(f){ const r=new FileReader(); r.onload=(ev)=>{ document.getElementById('cropImage').src=ev.target.result; document.getElementById('cropModal').classList.remove('hidden'); document.getElementById('cropModal').classList.add('flex'); if(cropper)cropper.destroy(); cropper=new Cropper(document.getElementById('cropImage'),{aspectRatio:16/9,viewMode:1}); }; r.readAsDataURL(f); } e.target.value=''; }
     function confirmCrop() { if(!cropper)return; const c=cropper.getCroppedCanvas({maxWidth:600}); coverImg=c.toDataURL('image/jpeg',0.7); updatePreviews(); document.getElementById('cropModal').classList.add('hidden'); document.getElementById('cropModal').classList.remove('flex'); }
@@ -687,8 +296,6 @@
     function removeCoverImage() { coverImg=''; updatePreviews(); }
     function removeGalleryImage(i) { galleryImgs.splice(i,1); updatePreviews(); }
     function updatePreviews() { const cp=document.getElementById('coverPreview'), cpi=document.getElementById('coverPreviewImg'); coverImg?(cp.classList.remove('hidden'),cpi.src=coverImg):cp.classList.add('hidden'); document.getElementById('galleryPreviewGrid').innerHTML=galleryImgs.map((img,i)=>`<div class="relative aspect-square bg-gray-100 rounded overflow-hidden group border"><img src="${img}" class="w-full h-full object-cover"><button onclick="removeGalleryImage(${i})" class="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition">×</button></div>`).join(''); }
-    
-    // Lightbox
     function openImageViewer(src) { if(!src)return; document.getElementById('fullImage').src=src; document.getElementById('imageViewerModal').classList.remove('hidden'); setTimeout(()=>{document.getElementById('fullImage').classList.replace('scale-95','scale-100'); document.getElementById('fullImage').classList.replace('opacity-0','opacity-100');},10); }
     function closeImageViewer() { const i=document.getElementById('fullImage'); i.classList.replace('scale-100','scale-95'); i.classList.replace('opacity-100','opacity-0'); setTimeout(()=>{document.getElementById('imageViewerModal').classList.add('hidden'); i.src='';},300); }
 
