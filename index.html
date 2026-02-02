@@ -278,8 +278,11 @@
 
         db.ref('restaurants').on('value', (s) => { dbData.restaurants = s.val() ? Object.values(s.val()) : []; renderGrid(); if(currentUser) renderAdminRestaurants(); showApp(); });
         db.ref('reviews').on('value', (s) => { dbData.reviews = s.val() ? Object.values(s.val()) : []; if(currentUser) renderAdminReviews(); });
+        
+        // --- 🔴 USER CHECK (Fix for empty DB) ---
         db.ref('users').on('value', (s) => { 
             dbData.users = s.val() ? Object.values(s.val()) : [];
+            // ถ้าว่าง ให้สร้าง 3 คน
             if(dbData.users.length === 0) {
                 create('users', { username: 'owner', password: '1234', role: 'owner' });
                 create('users', { username: 'moderator', password: '1234', role: 'moderator' });
