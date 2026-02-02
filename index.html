@@ -34,15 +34,15 @@
  <body class="h-full bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
   <div id="app" class="h-full overflow-auto">
    
-   <div id="loadingScreen" class="fixed inset-0 gradient-bg flex items-center justify-center z-[100]">
+   <div id="loadingScreen" class="fixed inset-0 gradient-bg flex items-center justify-center z-[100] transition-opacity duration-500">
     <div class="text-center text-white">
      <div class="text-6xl mb-4 animate-bounce">📡</div>
-     <div class="text-2xl font-bold">กำลังเชื่อมต่อฐานข้อมูล...</div>
-     <p id="loadingText" class="text-sm mt-2 opacity-80">กรุณารอสักครู่</p>
+     <div class="text-2xl font-bold">กำลังโหลด...</div>
+     <p id="loadingStatus" class="text-sm mt-2 opacity-80">เชื่อมต่อฐานข้อมูล</p>
     </div>
    </div>
 
-   <div id="mainContent" class="hidden">
+   <div id="mainContent" class="hidden opacity-0 transition-opacity duration-500">
     <nav class="glass-effect sticky top-0 z-40 shadow-lg">
      <div class="max-w-7xl mx-auto px-4 py-3">
       <div class="flex items-center justify-between">
@@ -58,7 +58,7 @@
      </div>
     </nav>
 
-    <div id="homePage" class="page opacity-0">
+    <div id="homePage" class="page">
      <div class="gradient-bg py-12 px-4 text-center text-white rounded-b-[3rem] shadow-xl mb-8">
        <h2 class="text-3xl md:text-5xl font-bold mb-4 drop-shadow-md">ร้านเด็ด อัปเดตเรียลไทม์ ⚡</h2>
        <div class="max-w-2xl mx-auto bg-white rounded-full p-2 flex shadow-2xl items-center">
@@ -163,7 +163,7 @@
   </div>
 
   <script>
-    // --- 🔴 Config ที่ผมใส่ให้แล้ว (ห้ามลบ!) ---
+    // --- 🔑 FIREBASE CONFIG (แก้ไขให้แล้ว!) ---
     const firebaseConfig = {
       apiKey: "AIzaSyBHX9l4CYgX0BCFliagOnBCK1oFbu7sp9s",
       authDomain: "rattawut-food.firebaseapp.com",
@@ -172,11 +172,18 @@
       messagingSenderId: "928937247925",
       appId: "1:928937247925:web:5d58ca32296f841a126afc",
       measurementId: "G-R2SSTS917K",
-      // 👇 ใช้ URL ของสิงคโปร์ (ตามรูปที่พี่ส่งมา)
-      databaseURL: "https://rattawut-food-default-rtdb.asia-southeast1.firebasedatabase.app"
+      // 👇 ใช้ Link มาตรฐาน (Global) เพื่อแก้ปัญหาหาเซิร์ฟเวอร์ไม่เจอ
+      databaseURL: "https://rattawut-food-default-rtdb.firebaseio.com" 
     };
 
-    // Initialize (แบบป้องกัน Error)
+    // Error Catcher (เผื่อมีอะไรพังอีก จะได้รู้)
+    window.onerror = function(msg, url, line) {
+        document.getElementById('loadingStatus').textContent = "เกิดข้อผิดพลาด: " + msg;
+        setTimeout(() => showApp(), 2000); // ถ้าพังก็ให้เข้าแอพไปก่อน
+        return false;
+    };
+
+    // Initialize
     if (!firebase.apps.length) {
         try {
             firebase.initializeApp(firebaseConfig);
@@ -186,36 +193,49 @@
 
     // --- 1. CONFIG & DATA ---
     const districts = ["พระนคร", "ดุสิต", "หนองจอก", "บางรัก", "บางเขน", "บางกะปิ", "ปทุมวัน", "ป้อมปราบศัตรูพ่าย", "พระโขนง", "มีนบุรี", "ลาดกระบัง", "ยานนาวา", "สัมพันธวงศ์", "พญาไท", "ธนบุรี", "บางกอกใหญ่", "ห้วยขวาง", "คลองสาน", "ตลิ่งชัน", "บางกอกน้อย", "บางขุนเทียน", "ภาษีเจริญ", "หนองแขม", "ราษฎร์บูรณะ", "บางพลัด", "ดินแดง", "บึงกุ่ม", "สาทร", "บางซื่อ", "จตุจักร", "บางคอแหลม", "ประเวศ", "คลองเตย", "สวนหลวง", "จอมทอง", "ดอนเมือง", "ราชเทวี", "ลาดพร้าว", "วัฒนา", "บางแค", "หลักสี่", "สายไหม", "คันนายาว", "สะพานสูง", "วังทองหลาง", "คลองสามวา", "บางนา", "ทวีวัฒนา", "ทุ่งครุ", "บางบอน"];
-    
-    // --- 2. FIREBASE SERVICE (No LocalStorage) ---
     let dbData = { restaurants:[], reviews:[], users:[] };
     let isConnected = false;
-    
+
+    // --- 2. STARTUP LOGIC (FAILSAFE ADDED) ---
     function startRealtimeSync() {
-        // ทดสอบการเชื่อมต่อ
+        document.getElementById('loadingStatus').textContent = "กำลังเชื่อมต่อ...";
+        
+        // Timeout Failsafe: ถ้า 3 วิ ไม่มา ให้เข้าแอพเลย (ป้องกันหน้าขาว)
+        setTimeout(() => {
+            if (!isConnected) {
+                console.warn("Connection timeout, forcing UI load");
+                showApp();
+            }
+        }, 3000);
+
         db.ref('.info/connected').on('value', function(snap) {
             if (snap.val() === true) {
                 isConnected = true;
-                document.getElementById('loadingText').textContent = "เชื่อมต่อสำเร็จ! กำลังดึงข้อมูล...";
-            } else {
-                document.getElementById('loadingText').textContent = "กำลังพยายามเชื่อมต่อ...";
+                document.getElementById('loadingStatus').textContent = "เชื่อมต่อสำเร็จ! กำลังดึงข้อมูล...";
             }
         });
 
-        db.ref('restaurants').on('value', (s) => { dbData.restaurants = s.val() ? Object.values(s.val()) : []; renderGrid(); if(currentUser) renderAdminRestaurants(); });
+        db.ref('restaurants').on('value', (s) => { dbData.restaurants = s.val() ? Object.values(s.val()) : []; renderGrid(); if(currentUser) renderAdminRestaurants(); showApp(); });
         db.ref('reviews').on('value', (s) => { dbData.reviews = s.val() ? Object.values(s.val()) : []; if(currentUser) renderAdminReviews(); });
         db.ref('users').on('value', (s) => { 
             dbData.users = s.val() ? Object.values(s.val()) : [];
-            // ถ้าไม่มี User เลย จะสร้าง Admin ให้
             if(dbData.users.length === 0) create('users', { username: 'admin', password: '1234', role: 'owner' });
             if(currentUser) renderAdminUsers(); 
         });
+    }
+
+    function showApp() {
+        const loader = document.getElementById('loadingScreen');
+        const main = document.getElementById('mainContent');
+        if (loader.style.display === 'none') return;
         
-        // Timeout ป้องกันหน้าค้าง
-        setTimeout(() => { 
-            document.getElementById('loadingScreen').style.display = 'none'; 
-            showPage('home'); 
-        }, 2000);
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+            main.classList.remove('hidden');
+            setTimeout(() => { main.classList.remove('opacity-0'); main.classList.add('opacity-100'); }, 50);
+            showPage('home');
+        }, 500);
     }
 
     function create(col, item) { const newRef = db.ref(col).push(); item.__backendId = newRef.key; return newRef.set(item); }
